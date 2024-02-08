@@ -1,5 +1,6 @@
 import yfinance as yf
 import pandas as pd
+from utils.date import string_to_datetime
 
 SP500_TICKER = "^GSPC"
 FILE_NAME = "./data/sp500.csv"
@@ -15,26 +16,18 @@ def get_SP500_data(start_date, end_date):
     
     sp500_data = sp500_data[(sp500_data['Date'] >= start_date) & (sp500_data['Date'] <= end_date)]
 
-    sp500_data.set_index('Date', inplace=True)
+    # sp500_data.set_index('Date', inplace=True)
 
     return sp500_data
 
 def get_SP500_model_data():
     start_date = "2000-01-01"
     end_date = "2024-02-01"
+    columns = ['Date', 'Close']
     
     data = get_SP500_data(start_date, end_date)
-    # remove columns which our neural network will not use
-    # selected_columns = ['Date', 'Close']
-    # filtered_data = data[selected_columns]
-    # filtered_data = filtered_data.reset_index()
-    
-    # remove columns which our neural network will not use
-    filtered_data = data.drop(['Open', 'High', 'Low', 'Adj Close', 'Volume'], axis=1)
+    filtered_data = data[columns]
+    # filtered_data['Date'] = filtered_data['Date'].apply(string_to_datetime)
+    filtered_data.index = filtered_data.pop('Date')
 
-    # create the column 'date' based on index column
-    # filtered_data['date'] = filtered_data.index
-    # create the column 'date' based on index column
-    # filtered_data.set_index('Date', inplace=True)
-    
     return filtered_data
