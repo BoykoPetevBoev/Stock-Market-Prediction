@@ -37,6 +37,7 @@ def normalize_data(data):
 def prepare_sequences(data):
     x = []
     y = []
+    dates = data[sequence_length:].index.to_numpy()
 
     for i in range(sequence_length, len(data)):
         y_today = data['Close'].iloc[i]
@@ -49,32 +50,41 @@ def prepare_sequences(data):
     x = np.array(x)
     y = np.array(y)
 
-    return x, y
+    return x, y, dates
 
 
-def split_train_and_test_data(x, y):
-     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
-     return x_train, x_test, y_train, y_test
+def split_train_and_test_data(x, y, dates):
+    q_80 = int(len(dates) * .8)
+    q_100 = int(len(dates))
+    
+    x_train, y_train, dates_train = x[0:q_80], y[0:q_80], dates[0:q_80]
+    x_test, y_test, dates_test = x[q_80:q_100], y[q_80:q_100], dates[q_80:q_100]
+    
+    #  x_train, x_test, y_train, y_test, dates_train, dates_test = train_test_split(x, y, dates, test_size=0.2, random_state=42)
+    return x_train, x_test, y_train, y_test, dates_train, dates_test
 
 
 def prepare_tensors(x, y):
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
+    # x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
+    # x_test = x_test.reshape(x_test.shape[0], x_test.shape[1], 1)
     
-    x_train = x_train.reshape(x_train.shape[0], x_train.shape[1], 1)
-    x_test = x_test.reshape(x_test.shape[0], x_test.shape[1], 1)
+    x = x.reshape(x.shape[0], x.shape[1], 1)
 
-    x_train = tf.convert_to_tensor(x_train, dtype=tf.float32)
-    x_test = tf.convert_to_tensor(x_test, dtype=tf.float32)
-    y_train = tf.convert_to_tensor(y_train, dtype=tf.float32)
-    y_test = tf.convert_to_tensor(y_test, dtype=tf.float32)
+    x = tf.convert_to_tensor(x, dtype=tf.float32)
+    y = tf.convert_to_tensor(y, dtype=tf.float32)
+    
+    # x_test = tf.convert_to_tensor(x_test, dtype=tf.float32)
+    # y_test = tf.convert_to_tensor(y_test, dtype=tf.float32)
 
-    return x_train, x_test, y_train, y_test
+    return x, y
 
 
 def get_lstm_data(): 
     data = prepare_data()
     normalized_data = normalize_data(data)
-    x, y = prepare_sequences(normalized_data)
-    x_train, x_test, y_train, y_test = prepare_tensors(x, y)
+    x, y, dates = prepare_sequences(normalized_data)
+    x_train, x_test, y_train, y_test, dates_train, dates_test = split_train_and_test_data(x, y, dates)
+    x_train, y_train = prepare_tensors(x_train, y_train)
+    x_test, y_test = prepare_tensors(x_test, y_test)
     
-    return x_train, x_test, y_train, y_test
+    return x_train, x_test, y_train, y_test, dates_train, dates_test
