@@ -15,7 +15,7 @@ SEQUENCE_COLUMNS_V1 = ['Close']
 COLUMNS_V2 = ['Date', 'Open', 'High', 'Low', 'Close']
 SEQUENCE_COLUMNS_V2 = ['Open', 'High', 'Low', 'Close']
 
-sequence_length = 5 
+SEQUENCE_LENGTH = 10
 
 def prepare_data():
     stock_data = get_SP500_data(START_DATE, END_DATE)
@@ -27,7 +27,7 @@ def prepare_data():
 
 
 def normalize_data(data): 
-    scaler = MinMaxScaler(feature_range=(0,1))
+    scaler = MinMaxScaler(feature_range=(0.1, 0.9))
     scaled_data = scaler.fit_transform(data)
     scaled_data = pd.DataFrame(scaled_data, columns=data.columns, index=data.index)
     
@@ -37,12 +37,12 @@ def normalize_data(data):
 def prepare_sequences(data):
     x = []
     y = []
-    dates = data[sequence_length:].index.to_numpy()
+    dates = data[SEQUENCE_LENGTH:].index.to_numpy()
 
-    for i in range(sequence_length, len(data)):
+    for i in range(SEQUENCE_LENGTH, len(data)):
         y_today = data['Close'].iloc[i]
 
-        x_previous_days = data[SEQUENCE_COLUMNS_V1].iloc[i-sequence_length:i].values.flatten()
+        x_previous_days = data[SEQUENCE_COLUMNS_V1].iloc[i-SEQUENCE_LENGTH:i].values.flatten()
 
         x.append(x_previous_days)
         y.append(y_today)   
@@ -60,22 +60,13 @@ def split_train_and_test_data(x, y, dates):
     x_train, y_train, dates_train = x[0:q_80], y[0:q_80], dates[0:q_80]
     x_test, y_test, dates_test = x[q_80:q_100], y[q_80:q_100], dates[q_80:q_100]
     
-    #  x_train, x_test, y_train, y_test, dates_train, dates_test = train_test_split(x, y, dates, test_size=0.2, random_state=42)
     return x_train, x_test, y_train, y_test, dates_train, dates_test
 
 
 def prepare_tensors(x, y):
-    # x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
-    # x_test = x_test.reshape(x_test.shape[0], x_test.shape[1], 1)
-    
     x = x.reshape(x.shape[0], x.shape[1], 1)
-
     x = tf.convert_to_tensor(x, dtype=tf.float32)
     y = tf.convert_to_tensor(y, dtype=tf.float32)
-    
-    # x_test = tf.convert_to_tensor(x_test, dtype=tf.float32)
-    # y_test = tf.convert_to_tensor(y_test, dtype=tf.float32)
-
     return x, y
 
 
@@ -84,7 +75,7 @@ def get_lstm_data():
     normalized_data = normalize_data(data)
     x, y, dates = prepare_sequences(normalized_data)
     x_train, x_test, y_train, y_test, dates_train, dates_test = split_train_and_test_data(x, y, dates)
-    x_train, y_train = prepare_tensors(x_train, y_train)
-    x_test, y_test = prepare_tensors(x_test, y_test)
+    # x_train, y_train = prepare_tensors(x_train, y_train)
+    # x_test, y_test = prepare_tensors(x_test, y_test)
     
     return x_train, x_test, y_train, y_test, dates_train, dates_test
