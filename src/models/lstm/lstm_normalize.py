@@ -54,13 +54,27 @@ def prepare_sequences(data):
 
 
 def split_train_and_test_data(x, y, dates):
-    q_80 = int(len(dates) * .8)
-    q_100 = int(len(dates))
+    train = int(len(dates) * .8)
+    test = int(len(dates) * .9)
+    predict = int(len(dates))
     
-    x_train, y_train, dates_train = x[0:q_80], y[0:q_80], dates[0:q_80]
-    x_test, y_test, dates_test = x[q_80:q_100], y[q_80:q_100], dates[q_80:q_100]
+    x_train, y_train, dates_train = x[0:train], y[0:train], dates[0:train]
+    x_test, y_test, dates_test = x[train:test], y[train:test], dates[train:test]
+    x_predict, y_predict, dates_predict = x[test:predict], y[test:predict], dates[test:predict]
     
-    return x_train, x_test, y_train, y_test, dates_train, dates_test
+    return {
+        'x': x_train,
+        'y': y_train,
+        'dates': dates_train
+    }, {
+        'x': x_test,
+        'y': y_test,
+        'dates': dates_test
+    }, {
+        'x': x_predict,
+        'y': y_predict,
+        'dates': dates_predict
+    }
 
 
 def prepare_tensors(x, y):
@@ -74,8 +88,21 @@ def get_lstm_data():
     data = prepare_data()
     normalized_data = normalize_data(data)
     x, y, dates = prepare_sequences(normalized_data)
-    x_train, x_test, y_train, y_test, dates_train, dates_test = split_train_and_test_data(x, y, dates)
-    # x_train, y_train = prepare_tensors(x_train, y_train)
-    # x_test, y_test = prepare_tensors(x_test, y_test)
+    train, test, predict = split_train_and_test_data(x, y, dates)
+    x_train, y_train = prepare_tensors(train['x'], train['y'])
+    x_test, y_test = prepare_tensors(test['x'], test['y'])
+    x_predict, y_predict = prepare_tensors(predict['x'], predict['y'])
     
-    return x_train, x_test, y_train, y_test, dates_train, dates_test
+    return {
+        'x': x_train,
+        'y': y_train,
+        'dates': train['dates']
+    }, {
+        'x': x_test,
+        'y': y_test,
+        'dates': test['dates']
+    }, {
+        'x': x_predict,
+        'y': y_predict,
+        'dates': predict['dates']
+    }

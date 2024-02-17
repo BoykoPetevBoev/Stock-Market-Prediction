@@ -9,3 +9,9 @@ def plot_chart_line(data, label, title):
     plt.legend()
     plt.grid(True)
     return plt
+
+def config_chart(title):
+    plt.figure(figsize=(12, 6))
+    plt.title(title)
+    plt.grid(True)
+    return plt
