@@ -1,19 +1,21 @@
 
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense, Input, Dropout
+from tensorflow.keras.layers import LSTM, Dense, Input, Dropout, Reshape
 from tensorflow.keras.optimizers import Adam
 
         
 def build_model():
-    INPUT_SHAPE = (10, 1)
+    INPUT_SHAPE = (10, 4)
+    OUTPUT_SHAPE = (3, 4)
     
     model = Sequential([
         Input(INPUT_SHAPE),
-        LSTM(64, return_sequences = True),
-        LSTM(32),
+        LSTM(128, return_sequences = True, input_shape=(10, 4)),
+        LSTM(64),
+        Dense(32, activation='relu'),
         Dense(16, activation='relu'),
-        Dense(16, activation='relu'),
-        Dense(1)
+        Dense(12),
+        Reshape(target_shape=OUTPUT_SHAPE)
     ])    
     model.compile(
         optimizer=Adam(0.001), 
