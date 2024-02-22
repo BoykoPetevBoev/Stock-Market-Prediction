@@ -4,7 +4,7 @@ import tensorflow as tf
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from data.sp500 import get_SP500_data
-# import pandas_ta as ta
+import pandas_ta as ta
 
 START_DATE = "2000-01-01"
 END_DATE = "2024-02-01"
@@ -23,12 +23,26 @@ def prepare_data():
     
     return stock_data
 
+def add_indicators(data): 
+    extended_data = data
+    # extended_data['SMA'] = ta.sma(data['Close'], length=50)  # Simple Moving Average
+    # extended_data['RSI'] = ta.rsi(data['Close'])
+    # extended_data.dropna(inplace=True)
+    return extended_data
 
 def normalize_data(data): 
+    matrix = np.array(data)
+    original_shape = matrix.shape
+
+    flattened_array = matrix.flatten()
+    column_vector = flattened_array.reshape(-1, 1)
+
     scaler = MinMaxScaler(feature_range=(0.1, 0.9))
-    scaled_data = scaler.fit_transform(data)
+    scaled_data = scaler.fit_transform(column_vector)
+
+    scaled_data = scaled_data.reshape(original_shape)
     scaled_data = pd.DataFrame(scaled_data, columns=data.columns, index=data.index)
-    
+
     return scaled_data
 
 
