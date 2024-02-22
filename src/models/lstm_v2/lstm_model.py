@@ -24,6 +24,16 @@ def build_model():
         loss='mse', 
         metrics=['mean_absolute_error']
     )
+    # plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
+    
+    # Print layer configuration
+    for layer in model.layers:
+        print(layer.get_config())
+
+    # Print layer weights
+    for layer in model.layers:
+        print(layer.get_weights())
+    
     return model
 
 
@@ -46,6 +56,5 @@ def train_model(x_train, x_test, y_train, y_test):
         verbose=2
     )
 
-    plot_model(model, to_file='lstm_model_v2.png', show_shapes=True)
 
     return model, fit_result, evaluate_result

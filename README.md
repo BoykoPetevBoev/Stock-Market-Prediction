@@ -41,3 +41,9 @@ Activate the Virtual Environment:
 2. Install Dependencies
 
 ``` pip install -r requirements.txt ```
+
+### Commands:
+
+1. Run TensorBoard:
+
+``` tensorboard --logdir=src/logs ```
