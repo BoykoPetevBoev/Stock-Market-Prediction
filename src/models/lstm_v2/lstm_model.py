@@ -1,7 +1,9 @@
 
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense, Input, Dropout, Reshape
+from tensorflow.keras.layers import LSTM, Dense, Input, Dropout, Reshape, TimeDistributed
 from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.utils import plot_model
 
         
 def build_model():
@@ -10,10 +12,10 @@ def build_model():
     
     model = Sequential([
         Input(INPUT_SHAPE),
-        LSTM(128, return_sequences = True, input_shape=(10, 4)),
+        LSTM(128, return_sequences=True, input_shape=(10, 4)),
         LSTM(64),
         Dense(32, activation='relu'),
-        Dense(16, activation='relu'),
+        Dense(32, activation='relu'),
         Dense(12),
         Reshape(target_shape=OUTPUT_SHAPE)
     ])    
@@ -27,12 +29,15 @@ def build_model():
 
 def train_model(x_train, x_test, y_train, y_test):
     model = build_model()
+    tensorboard_callback = TensorBoard(log_dir='logs/lstm_v2')
+    
     fit_result = model.fit(
         x=x_train, 
         y=y_train, 
         epochs=100, 
         verbose=2,
-        batch_size=32, 
+        batch_size=32,
+        callbacks=[tensorboard_callback]
     )
     evaluate_result = model.evaluate(
         x=x_test, 
@@ -40,4 +45,7 @@ def train_model(x_train, x_test, y_train, y_test):
         batch_size=32, 
         verbose=2
     )
+
+    plot_model(model, to_file='lstm_model_v2.png', show_shapes=True)
+
     return model, fit_result, evaluate_result
