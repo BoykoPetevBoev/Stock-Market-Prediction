@@ -12,7 +12,7 @@ END_DATE = "2024-02-01"
 COLUMNS = ['Date', 'Open', 'High', 'Low', 'Close']
 SEQUENCE_COLUMNS = ['Open', 'High', 'Low', 'Close']
 
-SEQUENCE_LENGTH = 10
+SEQUENCE_LENGTH = 15
 OUTPUT_LENGTH = 3
 
 def prepare_data():
