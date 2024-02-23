@@ -11,6 +11,7 @@ END_DATE = "2024-02-01"
 
 COLUMNS = ['Date', 'Open', 'High', 'Low', 'Close']
 SEQUENCE_COLUMNS = ['Open', 'High', 'Low', 'Close']
+OUTPUT_COLUMNS = ['Close']
 
 SEQUENCE_LENGTH = 15
 OUTPUT_LENGTH = 3
@@ -53,7 +54,7 @@ def prepare_sequences(data):
     y_dates = []
 
     for i in range(SEQUENCE_LENGTH, len(data) - OUTPUT_LENGTH - 1):
-        y_target_days = data[SEQUENCE_COLUMNS].iloc[i + 1:i+OUTPUT_LENGTH+1].to_numpy()
+        y_target_days = data[OUTPUT_COLUMNS].iloc[i + 1:i+OUTPUT_LENGTH+1].to_numpy()
         y_target_dates = data.index[i+1:i+OUTPUT_LENGTH+1].to_numpy()
         
         x_previous_days = data[SEQUENCE_COLUMNS].iloc[i-SEQUENCE_LENGTH+1:i+1].to_numpy()
