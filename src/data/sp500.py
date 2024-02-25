@@ -19,15 +19,3 @@ def get_SP500_data(start_date, end_date):
     # sp500_data.set_index('Date', inplace=True)
 
     return sp500_data
-
-def get_SP500_model_data():
-    start_date = "2000-01-01"
-    end_date = "2024-02-01"
-    columns = ['Date', 'Close']
-    
-    data = get_SP500_data(start_date, end_date)
-    filtered_data = data[columns]
-    # filtered_data['Date'] = filtered_data['Date'].apply(string_to_datetime)
-    filtered_data.index = filtered_data.pop('Date')
-
-    return filtered_data
