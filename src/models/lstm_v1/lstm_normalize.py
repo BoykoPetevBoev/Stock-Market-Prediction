@@ -3,7 +3,7 @@ import pandas as pd
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
-from data.sp500 import get_SP500_data
+from data.data import get_data
 # import pandas_ta as ta
 
 START_DATE = "2000-01-01"
@@ -17,8 +17,8 @@ SEQUENCE_COLUMNS_V2 = ['Open', 'High', 'Low', 'Close']
 
 SEQUENCE_LENGTH = 10
 
-def prepare_data():
-    stock_data = get_SP500_data(START_DATE, END_DATE)
+def prepare_data(ticker):
+    stock_data = get_data(ticker, start_date=START_DATE, end_date=END_DATE)
     stock_data = stock_data[COLUMNS_V1]
     stock_data['Date'] = pd.to_datetime(stock_data['Date'])
     stock_data.set_index('Date', inplace=True)
@@ -84,8 +84,8 @@ def prepare_tensors(x, y):
     return x, y
 
 
-def get_lstm_data(): 
-    data = prepare_data()
+def get_lstm_data(ticker): 
+    data = prepare_data(ticker)
     normalized_data = normalize_data(data)
     x, y, dates = prepare_sequences(normalized_data)
     train, test, predict = split_train_and_test_data(x, y, dates)
