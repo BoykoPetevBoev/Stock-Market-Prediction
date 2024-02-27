@@ -1,23 +1,27 @@
 import numpy as np
 import pandas as pd
-import tensorflow as tf
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
-from data.sp500 import get_SP500_data
 import pandas_ta as ta
+import tensorflow as tf
+from data.data import get_data
+from sklearn.preprocessing import MinMaxScaler
+
 
 START_DATE = "2000-01-01"
 END_DATE = "2024-02-01"
 
-COLUMNS = ['Date', 'Open', 'High', 'Low', 'Close']
-SEQUENCE_COLUMNS = ['Open', 'High', 'Low', 'Close']
+COLUMNS = ['Date', 'Open', 'High', 'Low', 'Close' ]
+SEQUENCE_COLUMNS = ['Open', 'High', 'Low', 'Close', 'MA25', 'MA50']
 OUTPUT_COLUMNS = ['Close']
 
 SEQUENCE_LENGTH = 15
-OUTPUT_LENGTH = 3
+OUTPUT_LENGTH = 5
 
-def prepare_data():
-    stock_data = get_SP500_data(START_DATE, END_DATE)
+def prepare_data(ticker):
+    stock_data = get_data(
+        ticker = ticker, 
+        start_date = START_DATE, 
+        end_date = END_DATE
+    )
     stock_data = stock_data[COLUMNS]
     stock_data['Date'] = pd.to_datetime(stock_data['Date'])
     stock_data.set_index('Date', inplace=True)
@@ -26,9 +30,10 @@ def prepare_data():
 
 def add_indicators(data): 
     extended_data = data
-    # extended_data['SMA'] = ta.sma(data['Close'], length=50)  # Simple Moving Average
+    extended_data['MA25'] = ta.sma(data['Close'], length=25)
+    extended_data['MA50'] = ta.sma(data['Close'], length=50)
     # extended_data['RSI'] = ta.rsi(data['Close'])
-    # extended_data.dropna(inplace=True)
+    extended_data.dropna(inplace=True)
     return extended_data
 
 def normalize_data(data): 
@@ -107,9 +112,10 @@ def prepare_tensors(x, y):
     return x, y
 
 
-def get_lstm_data(): 
-    data = prepare_data()
-    normalized_data = normalize_data(data)
+def get_lstm_data(ticker): 
+    data = prepare_data(ticker)
+    extended_data = add_indicators(data)
+    normalized_data = normalize_data(extended_data)
     x, y, x_dates, y_dates = prepare_sequences(normalized_data)
     train, test, predict = split_train_and_test_data(x, y, x_dates, y_dates)
     # x_train, y_train = prepare_tensors(train['x'], train['y'])

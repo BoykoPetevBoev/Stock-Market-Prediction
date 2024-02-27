@@ -7,8 +7,8 @@ from tensorflow.keras.utils import plot_model
 
 
 LSTM_V2_MODEL_DIRECTORY = './models/lstm_v2/lstm_model_v2'        
-INPUT_SHAPE = (15, 4)
-OUTPUT_SHAPE = (3, 1)
+INPUT_SHAPE = (15, 6)
+OUTPUT_SHAPE = (5, 1)
 
     
 def build_model():
@@ -19,7 +19,7 @@ def build_model():
         Dense(32, activation='relu'),
         Dense(32, activation='relu'),
         Dense(16, activation='relu'),
-        Dense(3),
+        Dense(5),
         # Reshape(target_shape=OUTPUT_SHAPE)
     ])    
     model.compile(
