@@ -7,19 +7,19 @@ from tensorflow.keras.utils import plot_model
 
 
 LSTM_V2_MODEL_DIRECTORY = './models/lstm_v2/lstm_model_v2'        
-INPUT_SHAPE = (15, 6)
-OUTPUT_SHAPE = (5, 1)
+INPUT_SHAPE = (15, 3)
+OUTPUT_SHAPE = (5, 3)
 
     
 def build_model():
     model = Sequential([
         Input(INPUT_SHAPE),
-        LSTM(64, return_sequences=True, input_shape=INPUT_SHAPE),
-        LSTM(64),
+        LSTM(75, return_sequences=True, input_shape=INPUT_SHAPE),
+        # LSTM(64),
         Dense(32, activation='relu'),
         Dense(32, activation='relu'),
         Dense(16, activation='relu'),
-        Dense(5),
+        Dense(3),
         # Reshape(target_shape=OUTPUT_SHAPE)
     ])    
     model.compile(

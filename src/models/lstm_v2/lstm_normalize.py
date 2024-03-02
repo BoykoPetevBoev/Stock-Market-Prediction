@@ -6,17 +6,18 @@ from data.data import get_data
 from sklearn.preprocessing import MinMaxScaler
 
 
+COLUMNS = ['Date', 'Open', 'High', 'Low', 'Close' ]
 START_DATE = "2000-01-01"
 END_DATE = "2024-02-01"
 
-COLUMNS = ['Date', 'Open', 'High', 'Low', 'Close' ]
-SEQUENCE_COLUMNS = ['Open', 'High', 'Low', 'Close', 'MA25', 'MA50']
-OUTPUT_COLUMNS = ['Close']
+
+SEQUENCE_COLUMNS = ['Close', 'Change', 'Direction']
+OUTPUT_COLUMNS = ['Close', 'Change', 'Direction']
 
 SEQUENCE_LENGTH = 15
 OUTPUT_LENGTH = 5
 
-def prepare_data(ticker):
+def prepare_data(ticker: str) -> pd.DataFrame:
     stock_data = get_data(
         ticker = ticker, 
         start_date = START_DATE, 
@@ -25,10 +26,16 @@ def prepare_data(ticker):
     stock_data = stock_data[COLUMNS]
     stock_data['Date'] = pd.to_datetime(stock_data['Date'])
     stock_data.set_index('Date', inplace=True)
-    
-    return stock_data
 
-def add_indicators(data): 
+    stock_data['Change'] = stock_data['Close'] - stock_data['Open']
+    stock_data['Direction'] = (stock_data['Change'] > 0).astype(int)
+
+    return stock_data[['Close', 'Direction', 'Change']]
+
+# def calculate_model_params(data): 
+
+
+def add_indicators(data: pd.DataFrame) -> pd.DataFrame: 
     extended_data = data
     extended_data['MA25'] = ta.sma(data['Close'], length=25)
     extended_data['MA50'] = ta.sma(data['Close'], length=50)
@@ -36,23 +43,23 @@ def add_indicators(data):
     extended_data.dropna(inplace=True)
     return extended_data
 
-def normalize_data(data): 
+def normalize_data(data: pd.DataFrame) -> np.ndarray: 
     matrix = np.array(data)
-    original_shape = matrix.shape
+    # original_shape = matrix.shape
 
-    flattened_array = matrix.flatten()
-    column_vector = flattened_array.reshape(-1, 1)
+    # flattened_array = matrix.flatten()
+    # column_vector = flattened_array.reshape(-1, 1)
 
-    scaler = MinMaxScaler(feature_range=(0.1, 0.9))
-    scaled_data = scaler.fit_transform(column_vector)
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    scaled_data = scaler.fit_transform(matrix)
 
-    scaled_data = scaled_data.reshape(original_shape)
+    # scaled_data = scaled_data.reshape(original_shape)
     scaled_data = pd.DataFrame(scaled_data, columns=data.columns, index=data.index)
 
     return scaled_data
 
 
-def prepare_sequences(data):
+def prepare_sequences(data: np.ndarray):
     x = []
     y = []
     x_dates = []
@@ -114,8 +121,8 @@ def prepare_tensors(x, y):
 
 def get_lstm_data(ticker): 
     data = prepare_data(ticker)
-    extended_data = add_indicators(data)
-    normalized_data = normalize_data(extended_data)
+    # extended_data = add_indicators(data)
+    normalized_data = normalize_data(data)
     x, y, x_dates, y_dates = prepare_sequences(normalized_data)
     train, test, predict = split_train_and_test_data(x, y, x_dates, y_dates)
     # x_train, y_train = prepare_tensors(train['x'], train['y'])
