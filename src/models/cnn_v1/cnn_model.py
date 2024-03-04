@@ -2,11 +2,10 @@ from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import Conv1D, Dense, MaxPooling1D, Flatten
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import TensorBoard
-# from tensorflow.keras.utils import plot_model
+
 
 CNN_V1_MODEL_DIRECTORY = './models/cnn_v1/cnn_model_v1'        
 CNN_V1_LOG_DIRECTORY = 'logs/cnn_v1'
-
 INPUT_SHAPE = (10, 1)
 
 
