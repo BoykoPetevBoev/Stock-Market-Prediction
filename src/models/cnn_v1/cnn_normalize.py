@@ -6,8 +6,8 @@ from classes.model_data_class import ModelData
 START_DATE = "2000-01-01"
 END_DATE = "2024-02-01"
 
-COLUMNS = ['Date', 'Close']
-SEQUENCE_COLUMNS = ['Close']
+COLUMNS = ['Date', 'Change']
+SEQUENCE_COLUMNS = ['Change']
 
 SEQUENCE_LENGTH = 10
 
@@ -33,7 +33,7 @@ def prepare_sequences(data: pd.DataFrame):
     dates = data[SEQUENCE_LENGTH:].index.to_numpy()
 
     for i in range(SEQUENCE_LENGTH, len(data)):
-        y_today = data['Close'].iloc[i]
+        y_today = data[SEQUENCE_COLUMNS].iloc[i]
         x_previous_days = data[SEQUENCE_COLUMNS].iloc[i-SEQUENCE_LENGTH:i].values.flatten()
         x.append(x_previous_days)
         y.append(y_today)   
@@ -70,4 +70,4 @@ def get_cnn_data(ticker: str):
     normalized_data = normalize_data(data)
     sequences_data = prepare_sequences(normalized_data)
     train, test, predict = split_train_and_test_data(sequences_data)
-    return train , test, predict
+    return train, test, predict
