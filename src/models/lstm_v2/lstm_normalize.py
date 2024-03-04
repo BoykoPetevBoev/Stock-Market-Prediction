@@ -15,7 +15,7 @@ SEQUENCE_COLUMNS = ['Close', 'Change', 'Direction']
 OUTPUT_COLUMNS = ['Close', 'Change', 'Direction']
 
 SEQUENCE_LENGTH = 15
-OUTPUT_LENGTH = 2
+OUTPUT_LENGTH = 2   
 
 def prepare_data(ticker: str) -> pd.DataFrame:
     stock_data = get_data(

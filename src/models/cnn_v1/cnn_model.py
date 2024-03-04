@@ -1,3 +1,4 @@
+import tensorflow as tf
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import Conv1D, Dense, MaxPooling1D, Flatten
 from tensorflow.keras.optimizers import Adam
@@ -17,25 +18,40 @@ def build_model():
             activation='relu', 
             input_shape=INPUT_SHAPE
         ),
-        MaxPooling1D((2,)),
+        MaxPooling1D(
+            pool_size=(2,)
+        ),
         Conv1D(
             filters=64, 
             kernel_size=(3,), 
             activation='relu'
         ),
-        MaxPooling1D((2,)),
+        MaxPooling1D(
+            pool_size=(2,)
+        ),
         Flatten(),
-        Dense(1, activation='linear')
-    ])    
+        Dense(
+            units=1, 
+            activation='linear'
+        )
+    ])
     model.compile(
         optimizer=Adam(0.001), 
         loss='mse', 
-        metrics=['mean_absolute_error', 'accuracy']
+        metrics=[
+            'mean_absolute_error',
+            'accuracy'
+        ]
     )
     return model
 
 
-def train_model(x_train, x_test, y_train, y_test):
+def train_model(
+    x_train: tf.Tensor, 
+    x_test: tf.Tensor, 
+    y_train: tf.Tensor, 
+    y_test: tf.Tensor
+):
     model = build_model()
     tensorboard_callback = TensorBoard(log_dir=CNN_V1_LOG_DIRECTORY)
     

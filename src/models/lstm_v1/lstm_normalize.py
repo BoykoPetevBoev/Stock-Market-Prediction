@@ -36,7 +36,7 @@ def prepare_sequences(data: pd.DataFrame):
     dates = data[SEQUENCE_LENGTH:].index.to_numpy()
 
     for i in range(SEQUENCE_LENGTH, len(data)):
-        y_today = data['Close'].iloc[i]
+        y_today = data[SEQUENCE_COLUMNS].iloc[i]
         x_previous_days = data[SEQUENCE_COLUMNS].iloc[i-SEQUENCE_LENGTH:i].values.flatten()
         x.append(x_previous_days)
         y.append(y_today)   

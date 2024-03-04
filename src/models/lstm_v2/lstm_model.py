@@ -7,6 +7,7 @@ from tensorflow.keras.utils import plot_model
 
 
 LSTM_V2_MODEL_DIRECTORY = './models/lstm_v2/lstm_model_v2'        
+LSTM_V2_LOG_DIRECTORY = 'logs/lstm_v2'      
 INPUT_SHAPE = (15, 3)
 OUTPUT_SHAPE = (2, 3)
 
@@ -16,7 +17,7 @@ def build_model():
         # Input(INPUT_SHAPE),
         LSTM(90, input_shape=INPUT_SHAPE),
         # LSTM(90),
-        Dense(90, activation='relu'),
+        # Dense(90, activation='relu'),
         Dense(45, activation='relu'),
         Dense(45, activation='relu'),
         Dense(45, activation='relu'),
@@ -35,12 +36,12 @@ def build_model():
 
 def train_model(x_train, x_test, y_train, y_test):
     model = build_model()
-    tensorboard_callback = TensorBoard(log_dir='logs/lstm_v2')
+    tensorboard_callback = TensorBoard(log_dir=LSTM_V2_LOG_DIRECTORY)
     
     fit_result = model.fit(
         x=x_train, 
         y=y_train, 
-        epochs=150,
+        epochs=200,
         verbose=2,
         # batch_size=32,
         callbacks=[tensorboard_callback]
