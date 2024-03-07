@@ -8,8 +8,8 @@ from classes.model_data_class import ModelData
 START_DATE = "2000-01-01"
 END_DATE = "2024-02-01"
 
-COLUMNS = ['Date', 'Close']
-SEQUENCE_COLUMNS = ['Close']
+COLUMNS = ['Date', 'Change']
+SEQUENCE_COLUMNS = ['Change']
 
 SEQUENCE_LENGTH = 10
 
@@ -23,7 +23,7 @@ def prepare_data(ticker: str):
 
 
 def normalize_data(data: pd.DataFrame): 
-    scaler = MinMaxScaler(feature_range=(0.1, 0.9))
+    scaler = MinMaxScaler(feature_range=(-1, 1))
     scaled_data = scaler.fit_transform(data)
     scaled_data = pd.DataFrame(scaled_data, columns=data.columns, index=data.index)
     
@@ -80,7 +80,4 @@ def get_lstm_data(ticker: str):
     normalized_data = normalize_data(data)
     sequences_data = prepare_sequences(normalized_data)
     train, test, predict = split_train_and_test_data(sequences_data)
-    # x_train, y_train = prepare_tensors(train['x'], train['y'])
-    # x_test, y_test = prepare_tensors(test['x'], test['y'])
-    # x_predict, y_predict = prepare_tensors(predict['x'], predict['y'])
     return train, test, predict
