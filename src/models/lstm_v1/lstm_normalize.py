@@ -5,11 +5,11 @@ from sklearn.preprocessing import MinMaxScaler
 from data.data import get_data
 from classes.model_data_class import ModelData
 
-START_DATE = "2000-01-01"
+START_DATE = "1900-01-01"
 END_DATE = "2024-02-01"
 
-COLUMNS = ['Date', 'Change']
-SEQUENCE_COLUMNS = ['Change']
+COLUMNS = ['Date', 'Close']
+SEQUENCE_COLUMNS = ['Close']
 
 SEQUENCE_LENGTH = 10
 

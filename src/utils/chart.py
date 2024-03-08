@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 def plot_chart_line(data, label, title):
     plt.figure(figsize=(12, 6))
@@ -47,3 +48,28 @@ def plot_model_performance(fit_result):
     #     plt.ylabel('Value')
     #     plt.plot(accuracy, label='Training Accuracy')
     #     plt.show()
+        
+def plot_scatter_data(real_data, predicted_data):
+    real_data = np.array(real_data)
+    predicted_data = np.array(predicted_data)
+
+    plt = config_chart('Scatter Actual vs. Predicted Values')
+    plt.scatter(real_data, real_data, label='Expected Result')
+    plt.scatter(real_data, predicted_data, label='Actual Result')
+    plt.legend()
+    plt.xlabel('Actual Value')
+    plt.ylabel('Predicted Value')
+    plt.show()
+
+
+def plot_distribution_data(real_data, predicted_data):
+    real_data = np.array(real_data)
+    predicted_data = np.array(predicted_data)
+
+    plt = config_chart('Distribution of Actual and Predicted Values')
+    plt.hist(predicted_data, bins=30, label='Predictions', alpha=0.7)
+    plt.hist(real_data, bins=30, label='Actual Data', alpha=0.7)
+    plt.xlabel('Values')
+    plt.ylabel('Frequency')
+    plt.legend()
+    plt.show()
