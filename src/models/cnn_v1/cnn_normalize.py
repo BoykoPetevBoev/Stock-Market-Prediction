@@ -3,7 +3,7 @@ from data.data import get_data
 from sklearn.preprocessing import MinMaxScaler
 from classes.model_data_class import ModelData
 
-START_DATE = "2000-01-01"
+START_DATE = "1900-01-01"
 END_DATE = "2024-02-01"
 
 COLUMNS = ['Date', 'Change']
@@ -21,7 +21,7 @@ def prepare_data(ticker: str):
 
 
 def normalize_data(data: pd.DataFrame): 
-    scaler = MinMaxScaler(feature_range=(0, 1))
+    scaler = MinMaxScaler(feature_range=(-1, 1))
     scaled_data = scaler.fit_transform(data)
     scaled_data = pd.DataFrame(scaled_data, columns=data.columns, index=data.index)
     return scaled_data

@@ -58,7 +58,7 @@ def train_model(
     fit_result = model.fit(
         x=x_train, 
         y=y_train, 
-        epochs=100, 
+        epochs=200, 
         verbose=2,
         batch_size=32,
         callbacks=[tensorboard_callback]

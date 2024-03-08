@@ -12,10 +12,9 @@ INPUT_SHAPE = (10, 1)
 
 def build_model():
     model = Sequential([
-        Input(INPUT_SHAPE),
-        LSTM(64, return_sequences = True),
-        LSTM(32),
-        Dense(16, activation='relu'),
+        LSTM(128, return_sequences=True, input_shape=INPUT_SHAPE),
+        LSTM(64),
+        Dense(32, activation='relu'),
         Dense(16, activation='relu'),
         Dense(1)
     ])    
