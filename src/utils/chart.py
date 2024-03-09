@@ -67,9 +67,46 @@ def plot_distribution_data(real_data, predicted_data):
     predicted_data = np.array(predicted_data)
 
     plt = config_chart('Distribution of Actual and Predicted Values')
-    plt.hist(predicted_data, bins=30, label='Predictions', alpha=0.7)
     plt.hist(real_data, bins=30, label='Actual Data', alpha=0.7)
+    plt.hist(predicted_data, bins=30, label='Predictions', alpha=0.7)
     plt.xlabel('Values')
     plt.ylabel('Frequency')
     plt.legend()
+    plt.show()
+    
+def plot_original_vs_predicted_value(values):
+    labels = ['green' if value > 0 else 'red' for value in values]
+    colors = ['green' if value > 0 else 'red' for value in values]
+
+    plt.figure(figsize=(6, 5))
+    plt.bar(labels, values, color=colors, width=0.4)  # Adjust width as needed
+
+    plt.title('Original vs. Predicted Value')
+    plt.xlabel('Data Point')
+    plt.ylabel('Value')
+    plt.xticks(rotation=0)  # Remove x-axis rotation
+    # Gridlines
+    # plt.grid(axis='y')
+    plt.show()
+    
+def plot_direction_comparison(original_changes, predicted_changes):
+
+    if original_changes.shape != predicted_changes.shape:
+      raise ValueError("Arrays must have the same shape.")
+
+    original_directions = np.sign(original_changes)  # 1 for positive, -1 for negative, 0 for no change
+    predicted_directions = np.sign(predicted_changes)
+
+    agreement = original_directions == predicted_directions
+
+    correct = np.sum(agreement)
+    incorrect = len(agreement) - correct
+
+    labels = ['Correct Predictions', 'Incorrect Predictions']
+    counts = [correct, incorrect]
+
+    plt = config_chart('Agreement Between Original and Predicted Directions')
+    plt.bar(labels, counts, color=['green', 'red'])
+    plt.xlabel('Prediction Direction')
+    plt.ylabel('Count')
     plt.show()

@@ -8,8 +8,8 @@ from classes.model_data_class import ModelData
 START_DATE = "1900-01-01"
 END_DATE = "2024-02-01"
 
-COLUMNS = ['Date', 'Close']
-SEQUENCE_COLUMNS = ['Close']
+COLUMNS = ['Date', 'Change']
+SEQUENCE_COLUMNS = ['Change']
 
 SEQUENCE_LENGTH = 10
 
@@ -18,6 +18,7 @@ def prepare_data(ticker: str):
     stock_data = stock_data[COLUMNS]
     stock_data['Date'] = pd.to_datetime(stock_data['Date'])
     stock_data.set_index('Date', inplace=True)
+    # stock_data['Direction'] = stock_data['Change'].apply(lambda x: 1 if x > 0 else (-1 if x < 0 else 0))
     
     return stock_data
 
@@ -26,7 +27,6 @@ def normalize_data(data: pd.DataFrame):
     scaler = MinMaxScaler(feature_range=(-1, 1))
     scaled_data = scaler.fit_transform(data)
     scaled_data = pd.DataFrame(scaled_data, columns=data.columns, index=data.index)
-    
     return scaled_data
 
 
