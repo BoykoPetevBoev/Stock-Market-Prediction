@@ -6,16 +6,18 @@ from data.data import get_data
 from sklearn.preprocessing import MinMaxScaler
 
 
-COLUMNS = ['Date', 'Open', 'High', 'Low', 'Close' ]
-START_DATE = "2000-01-01"
+COLUMNS = ['Date', 'Open', 'High', 'Low', 'Close', 'Change', 'Volume']
+START_DATE = "1900-01-01"
 END_DATE = "2024-02-01"
 
 
-SEQUENCE_COLUMNS = ['Close', 'Change', 'Direction']
-OUTPUT_COLUMNS = ['Close', 'Change', 'Direction']
+# SEQUENCE_COLUMNS = ['Close', 'Change', 'Direction']
+# OUTPUT_COLUMNS = ['Close', 'Change', 'Direction']
+SEQUENCE_COLUMNS = ['Open', 'High', 'Low', 'Close', 'Change', 'Volume']
+OUTPUT_COLUMNS = ['Change']
 
 SEQUENCE_LENGTH = 15
-OUTPUT_LENGTH = 2   
+OUTPUT_LENGTH = 1
 
 def prepare_data(ticker: str) -> pd.DataFrame:
     stock_data = get_data(
@@ -27,12 +29,7 @@ def prepare_data(ticker: str) -> pd.DataFrame:
     stock_data['Date'] = pd.to_datetime(stock_data['Date'])
     stock_data.set_index('Date', inplace=True)
 
-    stock_data['Change'] = stock_data['Close'] - stock_data['Open']
-    stock_data['Direction'] = (stock_data['Change'] > 0).astype(int)
-
-    return stock_data[['Close', 'Direction', 'Change']]
-
-# def calculate_model_params(data): 
+    return stock_data
 
 
 def add_indicators(data: pd.DataFrame) -> pd.DataFrame: 

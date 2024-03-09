@@ -8,22 +8,22 @@ from tensorflow.keras.utils import plot_model
 
 LSTM_V2_MODEL_DIRECTORY = './models/lstm_v2/lstm_model_v2'        
 LSTM_V2_LOG_DIRECTORY = 'logs/lstm_v2'      
-INPUT_SHAPE = (15, 3)
-OUTPUT_SHAPE = (2, 3)
+INPUT_SHAPE = (15, 6)
+OUTPUT_SHAPE = (1, 1)
 
     
 def build_model():
     model = Sequential([
         # Input(INPUT_SHAPE),
-        LSTM(90, input_shape=INPUT_SHAPE),
-        # LSTM(90),
+        LSTM(124, input_shape=INPUT_SHAPE, return_sequences=True,),
+        LSTM(124),
         # Dense(90, activation='relu'),
-        Dense(45, activation='relu'),
-        Dense(45, activation='relu'),
-        Dense(45, activation='relu'),
+        Dense(64, activation='relu'),
+        Dense(64, activation='relu'),
+        Dense(32, activation='relu'),
         # Dense(5),
-        Dense(15 * 3),
-        Dense(2 * 3),
+        # Dense(15 * 3),
+        Dense(1 * 1),
         Reshape(OUTPUT_SHAPE)
     ])    
     model.compile(
