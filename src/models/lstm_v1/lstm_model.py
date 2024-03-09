@@ -1,6 +1,6 @@
 
 from tensorflow.keras.models import Sequential, load_model
-from tensorflow.keras.layers import LSTM, Dense, Input
+from tensorflow.keras.layers import LSTM, Dense, Input, Dropout
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import TensorBoard
 
@@ -13,9 +13,9 @@ INPUT_SHAPE = (10, 1)
 def build_model():
     model = Sequential([
         LSTM(128, return_sequences=True, input_shape=INPUT_SHAPE),
-        LSTM(64),
-        Dense(32, activation='relu'),
-        Dense(16, activation='relu'),
+        LSTM(128),
+        Dense(64, activation='relu'),
+        Dense(64, activation='relu'),
         Dense(1)
     ])    
     model.compile(
@@ -33,7 +33,7 @@ def train_model(x_train, x_test, y_train, y_test):
     fit_result = model.fit(
         x=x_train, 
         y=y_train, 
-        epochs=100, 
+        epochs=200,
         verbose=2,
         batch_size=32,
         callbacks=[tensorboard_callback]
