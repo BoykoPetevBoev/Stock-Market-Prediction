@@ -33,7 +33,7 @@ def train_model(x_train, x_test, y_train, y_test):
     fit_result = model.fit(
         x=x_train, 
         y=y_train, 
-        epochs=200,
+        epochs=400,
         verbose=2,
         batch_size=32,
         callbacks=[tensorboard_callback]

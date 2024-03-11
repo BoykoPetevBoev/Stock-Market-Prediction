@@ -4,6 +4,7 @@ import pandas_ta as ta
 import tensorflow as tf
 from data.data import get_data
 from sklearn.preprocessing import MinMaxScaler
+from classes.model_data_class import ModelData
 
 
 COLUMNS = ['Date', 'Open', 'High', 'Low', 'Close', 'Change', 'Volume']
@@ -19,7 +20,7 @@ OUTPUT_COLUMNS = ['Change']
 SEQUENCE_LENGTH = 15
 OUTPUT_LENGTH = 1
 
-def prepare_data(ticker: str) -> pd.DataFrame:
+def prepare_data(ticker: str):
     stock_data = get_data(
         ticker = ticker, 
         start_date = START_DATE, 
@@ -32,7 +33,7 @@ def prepare_data(ticker: str) -> pd.DataFrame:
     return stock_data
 
 
-def add_indicators(data: pd.DataFrame) -> pd.DataFrame: 
+def add_indicators(data: pd.DataFrame): 
     extended_data = data
     extended_data['MA25'] = ta.sma(data['Close'], length=25)
     extended_data['MA50'] = ta.sma(data['Close'], length=50)
@@ -40,7 +41,7 @@ def add_indicators(data: pd.DataFrame) -> pd.DataFrame:
     extended_data.dropna(inplace=True)
     return extended_data
 
-def normalize_data(data: pd.DataFrame) -> np.ndarray: 
+def normalize_data(data: pd.DataFrame): 
     matrix = np.array(data)
     # original_shape = matrix.shape
 
@@ -56,7 +57,7 @@ def normalize_data(data: pd.DataFrame) -> np.ndarray:
     return scaled_data
 
 
-def prepare_sequences(data: np.ndarray):
+def prepare_sequences(data: np.DataFrame):
     x = []
     y = []
     x_dates = []
