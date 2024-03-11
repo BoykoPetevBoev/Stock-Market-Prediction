@@ -13,22 +13,22 @@ INPUT_SHAPE = (10, 1)
 def build_model():
     model = Sequential([
         Conv1D(
-            filters=64, 
+            filters=128, 
             kernel_size=(3,), 
             activation='relu', 
             input_shape=INPUT_SHAPE
         ),
-        MaxPooling1D(
-            pool_size=(2,)
-        ),
+        # MaxPooling1D(
+        #     pool_size=(2,)
+        # ),
         Conv1D(
-            filters=64, 
+            filters=128, 
             kernel_size=(3,), 
             activation='relu'
         ),
-        MaxPooling1D(
-            pool_size=(2,)
-        ),
+        # MaxPooling1D(
+        #     pool_size=(2,)
+        # ),
         Flatten(),
         Dense(
             units=1, 
