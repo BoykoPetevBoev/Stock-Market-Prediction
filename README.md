@@ -36,7 +36,7 @@ Activate the Virtual Environment:
 
 1. Activate the Virtual Environment
 
-``` venv\Scripts\activate ```
+``` .venv\Scripts\activate ```
 
 2. Install Dependencies
 

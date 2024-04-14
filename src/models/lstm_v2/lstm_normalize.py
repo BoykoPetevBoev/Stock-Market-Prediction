@@ -32,12 +32,12 @@ def prepare_data(ticker: str):
     )
     stock_data = stock_data[COLUMNS]
     stock_data['Date'] = pd.to_datetime(stock_data['Date'])
-    stock_data["Year"] = stock_data.Date.dt.year
-    stock_data["Month"] = stock_data.Date.dt.month
-    stock_data["Day"] = stock_data.Date.dt.day
+    # stock_data["Year"] = stock_data.Date.dt.year
+    # stock_data["Month"] = stock_data.Date.dt.month
+    # stock_data["Day"] = stock_data.Date.dt.day
     stock_data = stock_data.drop(columns=["Date"])
     # stock_data.set_index('Date', inplace=True)
-    stock_data.reset_index()
+    # stock_data.reset_index()
     return stock_data
 
 
@@ -68,14 +68,14 @@ def split_data(data: pd.DataFrame):
 
 
 def normalize_data(data: pd.DataFrame): 
-    matrix = np.array(data)
+    # matrix = np.array(data)
     # original_shape = matrix.shape
 
     # flattened_array = matrix.flatten()
     # column_vector = flattened_array.reshape(-1, 1)
 
     scaler = MinMaxScaler(feature_range=(0, 1))
-    scaled_data = scaler.fit_transform(matrix)
+    scaled_data = scaler.fit_transform(data)
 
     # scaled_data = scaled_data.reshape(original_shape)
     scaled_data = pd.DataFrame(scaled_data, columns=data.columns, index=data.index)
@@ -89,8 +89,8 @@ def prepare_sequences(data: pd.DataFrame):
     # x_dates = []
     # y_dates = []
 
-    target = data.Close
-    indicators = data.drop(columns=["Close"])
+    target = (data['Change'] > 0).astype(int)
+    indicators = data
 
     for i in range(SEQUENCE_LENGTH, len(data)):
         y_target_days = target.iloc[i]
@@ -148,10 +148,10 @@ def prepare_tensors(x, y):
 
 def get_lstm_data(ticker): 
     data = prepare_data(ticker)
-    extended_data = add_indicators(data)
-    extended_data = add_lags(extended_data)
+    # extended_data = add_indicators(data)
+    # extended_data = add_lags(extended_data)
     # indicators_train, indicators_test, target_train, target_test = split_data(extended_data)
-    x, y = prepare_sequences(extended_data)
+    x, y = prepare_sequences(data)
     train, test, predict = split_train_and_test_data(x, y)
 
     # normalized_data = normalize_data(data)
