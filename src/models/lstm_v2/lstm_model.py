@@ -1,3 +1,4 @@
+import tensorflow as tf
 
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import LSTM, Dense, Input, Dropout, Reshape, TimeDistributed
@@ -5,31 +6,36 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.utils import plot_model
 
-
-LSTM_V2_MODEL_DIRECTORY = './models/lstm_v2/lstm_model_v2'        
+LSTM_V2_MODEL_DIRECTORY = './models/lstm_v2/lstm_model_v2.keras'        
 LSTM_V2_LOG_DIRECTORY = 'logs/lstm_v2'      
-INPUT_SHAPE = (16,)
+INPUT_SHAPE = (5, 7)
 OUTPUT_SHAPE = (1)
 
     
 def build_model():
     model = Sequential([
-        # Input(INPUT_SHAPE),
-        # LSTM(124, input_shape=INPUT_SHAPE, return_sequences=True,),
-        # LSTM(64),
+        Input(INPUT_SHAPE),
+        # LSTM(64, return_sequences=False),
+        LSTM(10),
         # Dense(90, activation='relu'),
-        Dense(32, activation='relu'),
+        Dense(10, activation='relu'),
         # Dense(64, activation='relu'),
-        Dense(16, activation='relu'),
+        Dense(10, activation='relu'),
         # Dense(5),
         # Dense(15 * 3),
-        Dense(1),
+        Dense(1, activation="sigmoid"),
         # Reshape(OUTPUT_SHAPE)
     ])    
     model.compile(
-        optimizer=Adam(0.001), 
-        loss='mse',
-        metrics=['mean_absolute_error']
+        # optimizer=Adam(0.001), 
+        # loss='mse',
+        loss="binary_crossentropy",
+        optimizer="adam",
+        metrics=[
+            "accuracy",
+            tf.keras.metrics.Precision(),
+            tf.keras.metrics.Recall()
+        ]
     )
     return model
 
@@ -41,7 +47,7 @@ def train_model(x_train, x_test, y_train, y_test):
     fit_result = model.fit(
         x=x_train, 
         y=y_train, 
-        epochs=200,
+        epochs=100,
         # verbose=2,
         # batch_size=32,
         callbacks=[tensorboard_callback]

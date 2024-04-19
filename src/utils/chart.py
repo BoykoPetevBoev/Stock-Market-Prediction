@@ -21,25 +21,50 @@ def config_chart(title):
 
 def plot_model_performance(fit_result):
     loss = fit_result.history.get('loss')
-    accuracy = fit_result.history.get('accuracy')
     mean_absolute_error = fit_result.history.get('mean_absolute_error')
     mean_squared_logarithmic_error = fit_result.history.get('mean_squared_logarithmic_error')
 
-    if(loss and mean_absolute_error):
-        plt = config_chart('Training Result')
+    accuracy = fit_result.history.get('accuracy')
+    recall = fit_result.history.get('recall_1')
+    precision = fit_result.history.get('precision_1')
+
+
+
+    if(loss):
+        plt = config_chart('Loss Result')
         plt.xlabel('Epoch')
         plt.ylabel('Value')
         plt.plot(loss)
-        plt.plot(mean_absolute_error)
-        plt.legend(['Loss', 'Mean Absolute Error'])
+        plt.legend(['Loss'])
         plt.show()
 
+    if(mean_absolute_error):
+        plt = config_chart('Mean Absolute Error Result')
+        plt.xlabel('Epoch')
+        plt.ylabel('Value')
+        plt.plot(mean_absolute_error)
+        plt.legend(['Mean Absolute Error'])
+        plt.show()
 
     if(accuracy):
         plt = config_chart('Accuracy Result')
         plt.xlabel('Epoch')
         plt.ylabel('Value')
         plt.plot(accuracy, label='Training Accuracy')
+        plt.show()
+
+    if(recall):
+        plt = config_chart('Recall Result')
+        plt.xlabel('Epoch')
+        plt.ylabel('Value')
+        plt.plot(recall)
+        plt.show()
+
+    if(precision):
+        plt = config_chart('Precision Result')
+        plt.xlabel('Epoch')
+        plt.ylabel('Value')
+        plt.plot(precision)
         plt.show()
     
     # if(accuracy):
@@ -54,8 +79,8 @@ def plot_scatter_data(real_data, predicted_data):
     predicted_data = np.array(predicted_data)
 
     plt = config_chart('Scatter Actual vs. Predicted Values')
-    plt.scatter(real_data, real_data, label='Expected Result')
-    plt.scatter(real_data, predicted_data, label='Actual Result')
+    plt.scatter(range(len(real_data)), real_data, label='Expected Result')
+    plt.scatter(range(len(predicted_data)), predicted_data, label='Actual Result')
     plt.legend()
     plt.xlabel('Actual Value')
     plt.ylabel('Predicted Value')
@@ -91,8 +116,8 @@ def plot_original_vs_predicted_value(values):
     
 def plot_direction_comparison(original_changes, predicted_changes):
 
-    if original_changes.shape != predicted_changes.shape:
-      raise ValueError("Arrays must have the same shape.")
+    # if original_changes.shape != predicted_changes.shape:
+    #   raise ValueError("Arrays must have the same shape.")
 
     original_directions = np.sign(original_changes)  # 1 for positive, -1 for negative, 0 for no change
     predicted_directions = np.sign(predicted_changes)
