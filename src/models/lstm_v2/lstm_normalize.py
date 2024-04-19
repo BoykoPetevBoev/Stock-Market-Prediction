@@ -11,7 +11,7 @@ from sklearn.model_selection import train_test_split
 
 
 
-COLUMNS = ['Date', 'Open', 'High', 'Low', 'Close', 'Change', 'Volume']
+COLUMNS = ['Date', 'Open', 'High', 'Low', 'Close', 'Change', 'Volume', 'Direction']
 START_DATE = "1900-01-01"
 END_DATE = "2024-02-01"
 
@@ -36,9 +36,11 @@ def prepare_data(ticker: str):
     # stock_data["Month"] = stock_data.Date.dt.month
     # stock_data["Day"] = stock_data.Date.dt.day
     stock_data = stock_data.drop(columns=["Date"])
+    target = stock_data['Direction'].to_numpy()
+    
     # stock_data.set_index('Date', inplace=True)
     # stock_data.reset_index()
-    return stock_data
+    return stock_data, target
 
 
 def add_indicators(data: pd.DataFrame): 
@@ -84,32 +86,34 @@ def normalize_data(data: pd.DataFrame):
 
 
 def prepare_sequences(data: pd.DataFrame):
+    # np.set_printoptions(suppress_scientific=True)
     x = []
-    y = []
+    # y = []
     # x_dates = []
     # y_dates = []
 
-    target = (data['Change'] > 0).astype(int)
+    # target = (data['Change'] > 0).astype(int)
     indicators = data
 
     for i in range(SEQUENCE_LENGTH, len(data)):
-        y_target_days = target.iloc[i]
+        # y_target_days = target.iloc[i]
     #     y_target_dates = data.index[i+1:i+OUTPUT_LENGTH+1].to_numpy()
         
-        x_previous_days = indicators.iloc[i-SEQUENCE_LENGTH:i]
+        x_previous_days = indicators.iloc[i-SEQUENCE_LENGTH:i].to_numpy()
     #     x_previous_dates = data.index[i-SEQUENCE_LENGTH+1:i+1].to_numpy()
 
-        x.append(x_previous_days)
-        y.append(y_target_days)
+        rounded_data = np.round(x_previous_days, decimals=3)
+        x.append(rounded_data)
+        # y.append(y_target_days)
     #     y_dates.append(y_target_dates)
     #     x_dates.append(x_previous_dates)
 
     x = np.array(x)
-    y = np.array(y)
+    # y = np.array(y)
     # x_dates = np.array(x_dates)
     # y_dates = np.array(y_dates)
 
-    return x, y
+    return x
 
 
 def split_train_and_test_data(x, y):
@@ -147,14 +151,14 @@ def prepare_tensors(x, y):
 
 
 def get_lstm_data(ticker): 
-    data = prepare_data(ticker)
+    data, target = prepare_data(ticker)
     # extended_data = add_indicators(data)
     # extended_data = add_lags(extended_data)
     # indicators_train, indicators_test, target_train, target_test = split_data(extended_data)
-    x, y = prepare_sequences(data)
-    train, test, predict = split_train_and_test_data(x, y)
+    data = normalize_data(data)
+    data = prepare_sequences(data)
+    train, test, predict = split_train_and_test_data(data, target)
 
-    # normalized_data = normalize_data(data)
     # x_train, y_train = prepare_tensors(train['x'], train['y'])
     # x_test, y_test = prepare_tensors(test['x'], test['y'])
     # x_predict, y_predict = prepare_tensors(predict['x'], predict['y'])

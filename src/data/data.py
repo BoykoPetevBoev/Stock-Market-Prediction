@@ -11,14 +11,21 @@ def get_data(
     end_date = "2024-02-01",
     interval = '1d'
 ):
-  if(ticker == DJI_TICKER):
-    return get_dow_jones_data(start_date, end_date)
-  
-  if(ticker == NASDAQ_TICKER):
-    return get_nasdaq_data(start_date, end_date)
+  data = None
 
-  if(ticker == SP500_TICKER):
-    return get_SP500_data(start_date, end_date)
+  if ticker == DJI_TICKER:
+    data = get_dow_jones_data(start_date, end_date)
   
-  data = yf.download(ticker, start=start_date, end=end_date, interval=interval)
+  elif ticker == NASDAQ_TICKER:
+    data =  get_nasdaq_data(start_date, end_date)
+  
+  elif ticker == SP500_TICKER:
+    data =  get_SP500_data(start_date, end_date)
+  
+  else:
+    data = yf.download(ticker, start=start_date, end=end_date, interval=interval)
+
+  data["Change"] = data["Close"] - data["Open"]
+  data["Direction"] = data["Change"].apply(lambda x: 1 if x > 0 else 0)
+
   return data
