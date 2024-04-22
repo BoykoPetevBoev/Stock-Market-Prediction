@@ -119,16 +119,35 @@ def plot_direction_comparison(original_changes, predicted_changes):
     # if original_changes.shape != predicted_changes.shape:
     #   raise ValueError("Arrays must have the same shape.")
 
-    original_directions = np.sign(original_changes)  # 1 for positive, -1 for negative, 0 for no change
-    predicted_directions = np.sign(predicted_changes)
+    # original_directions = np.sign(original_changes)
+    # predicted_directions = np.sign(predicted_changes)
 
-    agreement = original_directions == predicted_directions
+    # agreement = original_directions == predicted_directions
 
-    correct = np.sum(agreement)
-    incorrect = len(agreement) - correct
+    # correct = np.sum(agreement)
+    # incorrect = len(agreement) - correct
+
+    binary_predictions = np.where(predicted_changes >= 0.5, 1, 0).flatten()
+    correct = np.sum(original_changes == binary_predictions)
+    incorrect = np.sum(original_changes != binary_predictions)
+
+    
+    mask_excluded = (predicted_changes < 0.45) | (predicted_changes > 0.55)
+    binary_predictions_excluded = np.where(mask_excluded, np.where(predicted_changes >= 0.5, 1, 0), np.nan).flatten()
+    correct_excluded = np.sum((original_changes == binary_predictions_excluded) & (~np.isnan(binary_predictions_excluded)))
+    incorrect_excluded = np.sum((original_changes != binary_predictions_excluded) & (~np.isnan(binary_predictions_excluded)))
 
     labels = ['Correct Predictions', 'Incorrect Predictions']
     counts = [correct, incorrect]
+
+    plt = config_chart('Agreement Between Original and Predicted Directions')
+    plt.bar(labels, counts, color=['green', 'red'])
+    plt.xlabel('Prediction Direction')
+    plt.ylabel('Count')
+    plt.show()
+    
+    labels = ['Correct Predictions', 'Incorrect Predictions']
+    counts = [correct_excluded, incorrect_excluded]
 
     plt = config_chart('Agreement Between Original and Predicted Directions')
     plt.bar(labels, counts, color=['green', 'red'])
