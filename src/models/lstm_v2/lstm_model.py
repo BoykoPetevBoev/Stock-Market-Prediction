@@ -8,7 +8,7 @@ from tensorflow.keras.utils import plot_model
 
 LSTM_V2_MODEL_DIRECTORY = './models/lstm_v2/lstm_model_v2.keras'        
 LSTM_V2_LOG_DIRECTORY = 'logs/lstm_v2'      
-INPUT_SHAPE = (5, 7)
+INPUT_SHAPE = (1, 6)
 OUTPUT_SHAPE = (1)
 
     
@@ -16,11 +16,11 @@ def build_model():
     model = Sequential([
         Input(INPUT_SHAPE),
         # LSTM(64, return_sequences=False),
-        LSTM(10),
+        LSTM(64),
         # Dense(90, activation='relu'),
-        Dense(10, activation='relu'),
+        Dense(32, activation='relu'),
         # Dense(64, activation='relu'),
-        Dense(10, activation='relu'),
+        Dense(16, activation='relu'),
         # Dense(5),
         # Dense(15 * 3),
         Dense(1, activation="sigmoid"),
@@ -28,7 +28,7 @@ def build_model():
     ])    
     model.compile(
         # optimizer=Adam(0.001), 
-        # loss='mse',
+        # loss='mse', 
         loss="binary_crossentropy",
         optimizer="adam",
         metrics=[
