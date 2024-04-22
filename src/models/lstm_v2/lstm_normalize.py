@@ -18,10 +18,12 @@ END_DATE = "2024-02-01"
 
 # SEQUENCE_COLUMNS = ['Close', 'Change', 'Direction']
 # OUTPUT_COLUMNS = ['Close', 'Change', 'Direction']
-SEQUENCE_COLUMNS = ['Open', 'High', 'Low', 'Close', 'Change', 'Volume']
+# 'Stochastic_K', 'Stochastic_D',
+# 'lag_1', 'lag_2', 'lag_3', 'lag_4',
+SEQUENCE_COLUMNS = ['Open', 'Close', 'Change', 'RSI', 'MA25', 'MA50']
 OUTPUT_COLUMNS = ['Change']
 
-SEQUENCE_LENGTH = 5
+SEQUENCE_LENGTH = 1
 OUTPUT_LENGTH = 1
 
 def prepare_data(ticker: str):
@@ -35,6 +37,7 @@ def prepare_data(ticker: str):
     # stock_data["Year"] = stock_data.Date.dt.year
     # stock_data["Month"] = stock_data.Date.dt.month
     # stock_data["Day"] = stock_data.Date.dt.day
+    
     stock_data = stock_data.drop(columns=["Date"])
     target = stock_data['Direction'].to_numpy()
     
@@ -45,10 +48,21 @@ def prepare_data(ticker: str):
 
 def add_indicators(data: pd.DataFrame): 
     extended_data = data
-    extended_data['MA25'] = ta.sma(data['Close'], length=25)
-    extended_data['MA50'] = ta.sma(data['Close'], length=50)
-    extended_data['MA100'] = ta.sma(data['Close'], length=100)
+
+    ma25 = ta.sma(data['Close'], length=25)
+    extended_data['MA25'] = data['Close'] - ma25
+    
+    ma50 = ta.sma(data['Close'], length=50)
+    extended_data['MA50'] = data['Close'] - ma50
+    # extended_data['MA50'] = ta.sma(data['Close'], length=50)
+    # extended_data['MA100'] = ta.sma(data['Close'], length=100)
+
     extended_data['RSI'] = ta.rsi(data['Close'])
+    
+    # stoch_results  = ta.stoch(high=data['High'], low=data['Low'], close=data['Close'])
+    # extended_data['Stochastic_K'] = stoch_results.iloc[:, 0]
+    # extended_data['Stochastic_D'] = stoch_results.iloc[:, 1]
+
     extended_data.dropna(inplace=True)
     extended_data.reset_index()
     return extended_data
@@ -85,7 +99,7 @@ def normalize_data(data: pd.DataFrame):
     return scaled_data
 
 
-def prepare_sequences(data: pd.DataFrame):
+def prepare_sequences(data: pd.DataFrame, target):
     # np.set_printoptions(suppress_scientific=True)
     x = []
     # y = []
@@ -93,7 +107,8 @@ def prepare_sequences(data: pd.DataFrame):
     # y_dates = []
 
     # target = (data['Change'] > 0).astype(int)
-    indicators = data
+    indicators = data[SEQUENCE_COLUMNS]
+    target = data['Direction'].to_numpy()
 
     for i in range(SEQUENCE_LENGTH, len(data)):
         # y_target_days = target.iloc[i]
@@ -109,11 +124,12 @@ def prepare_sequences(data: pd.DataFrame):
     #     x_dates.append(x_previous_dates)
 
     x = np.array(x)
+    target = target[SEQUENCE_LENGTH: len(data)]
     # y = np.array(y)
     # x_dates = np.array(x_dates)
     # y_dates = np.array(y_dates)
 
-    return x
+    return x, target
 
 
 def split_train_and_test_data(x, y):
@@ -152,11 +168,11 @@ def prepare_tensors(x, y):
 
 def get_lstm_data(ticker): 
     data, target = prepare_data(ticker)
-    # extended_data = add_indicators(data)
-    # extended_data = add_lags(extended_data)
+    data = add_indicators(data)
+    # data = add_lags(data)
     # indicators_train, indicators_test, target_train, target_test = split_data(extended_data)
     data = normalize_data(data)
-    data = prepare_sequences(data)
+    data, target = prepare_sequences(data, target)
     train, test, predict = split_train_and_test_data(data, target)
 
     # x_train, y_train = prepare_tensors(train['x'], train['y'])
