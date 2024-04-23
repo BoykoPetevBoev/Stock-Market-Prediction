@@ -33,38 +33,32 @@ def prepare_data(ticker: str):
         end_date = END_DATE
     )
     stock_data = stock_data[COLUMNS]
+
     stock_data['Date'] = pd.to_datetime(stock_data['Date'])
-    # stock_data["Year"] = stock_data.Date.dt.year
-    # stock_data["Month"] = stock_data.Date.dt.month
-    # stock_data["Day"] = stock_data.Date.dt.day
+    stock_data.set_index('Date', inplace=True)
     
-    stock_data = stock_data.drop(columns=["Date"])
-    
-    # stock_data.set_index('Date', inplace=True)
-    # stock_data.reset_index()
     return stock_data
 
 
 def add_indicators(data: pd.DataFrame): 
-    extended_data = data
 
     ma25 = ta.sma(data['Close'], length=25)
-    extended_data['MA25'] = data['Close'] - ma25
+    data['MA25'] = data['Close'] - ma25
     
     ma50 = ta.sma(data['Close'], length=50)
-    extended_data['MA50'] = data['Close'] - ma50
+    data['MA50'] = data['Close'] - ma50
     # extended_data['MA50'] = ta.sma(data['Close'], length=50)
     # extended_data['MA100'] = ta.sma(data['Close'], length=100)
 
-    extended_data['RSI'] = ta.rsi(data['Close'])
+    data['RSI'] = ta.rsi(data['Close'])
     
     # stoch_results  = ta.stoch(high=data['High'], low=data['Low'], close=data['Close'])
     # extended_data['Stochastic_K'] = stoch_results.iloc[:, 0]
     # extended_data['Stochastic_D'] = stoch_results.iloc[:, 1]
 
-    extended_data.dropna(inplace=True)
-    extended_data.reset_index()
-    return extended_data
+    data.dropna(inplace=True)
+    data.reset_index()
+    return data
 
 
 def add_lags(data: pd.DataFrame):
@@ -83,40 +77,28 @@ def split_data(data: pd.DataFrame):
 
 
 def normalize_data(data: pd.DataFrame): 
-    # matrix = np.array(data)
-    # original_shape = matrix.shape
-
-    # flattened_array = matrix.flatten()
-    # column_vector = flattened_array.reshape(-1, 1)
-
     scaler = MinMaxScaler(feature_range=(0, 1))
     scaled_data = scaler.fit_transform(data)
-
-    # scaled_data = scaled_data.reshape(original_shape)
     scaled_data = pd.DataFrame(scaled_data, columns=data.columns, index=data.index)
+    return scaled_data
 
+
+def prepare_sequences(data: pd.DataFrame):
+    dates = data.index.to_numpy()
     target = data['Direction'].to_numpy()
-    scaled_data = scaled_data[SEQUENCE_COLUMNS].to_numpy()
-
-    return scaled_data, target
+    indicators = data[SEQUENCE_COLUMNS].to_numpy()
 
 
-def prepare_sequences(data: pd.DataFrame, target):
-    indicators = data[SEQUENCE_COLUMNS]
-
-    # Shift the target column to represent the next day's direction
-    shifted_target = data['Direction'].shift(-1)
-    
-    # Remove the last row as it will have NaN due to shifting
     indicators = indicators[:-1]
-    shifted_target = shifted_target[:-1]
+    indicators_dates = dates[:-1]
     
-    # Convert shifted target to numpy array
-    target = shifted_target.to_numpy()
-    return indicators, target
+    target = target[1:]
+    target_dates = dates[1:]
+    
+    return indicators, indicators_dates, target, target_dates
 
 
-def split_train_and_test_data(x, y):
+def split_train_and_test_data(x, y, x_dates, y_dates):
     train = int(len(y) * .8)
     test = int(len(y) * .9)
     predict = int(len(y))
@@ -128,18 +110,18 @@ def split_train_and_test_data(x, y):
     return {
         'x': x[0:train],
         'y': y[0:train],
-        # 'x_dates': x_dates[0:train],
-        # 'y_dates': y_dates[0:train]
+        'x_dates': x_dates[0:train],
+        'y_dates': y_dates[0:train]
     }, {
         'x': x_test,
         'y': y_test,
-        # 'x_dates': x_dates[train:test],
-        # 'y_dates': y_dates[train:test]
+        'x_dates': x_dates[train:test],
+        'y_dates': y_dates[train:test]
     }, {
         'x': x_predict,
         'y': y_predict,
-        # 'x_dates': x_dates[test:predict],
-        # 'y_dates': y_dates[test:predict]
+        'x_dates': x_dates[test:predict],
+        'y_dates': y_dates[test:predict]
     }
 
 
@@ -154,10 +136,9 @@ def get_cnn_data(ticker):
     data = prepare_data(ticker)
     data = add_indicators(data)
     # data = add_lags(data)
-    # indicators_train, indicators_test, target_train, target_test = split_data(extended_data)
-    data, target = normalize_data(data)
-    # data, target = prepare_sequences(data, target)
-    train, test, predict = split_train_and_test_data(data, target)
+    data =  normalize_data(data)
+    indicators, indicators_dates, target, target_dates  = prepare_sequences(data)
+    train, test, predict = split_train_and_test_data(indicators, target, indicators_dates, target_dates)
 
     # x_train, y_train = prepare_tensors(train['x'], train['y'])
     # x_test, y_test = prepare_tensors(test['x'], test['y'])
