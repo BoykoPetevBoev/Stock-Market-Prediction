@@ -20,7 +20,7 @@ END_DATE = "2024-02-01"
 # OUTPUT_COLUMNS = ['Close', 'Change', 'Direction']
 # 'Stochastic_K', 'Stochastic_D',
 # 'lag_1', 'lag_2', 'lag_3', 'lag_4',
-SEQUENCE_COLUMNS = ['Open', 'Close', 'Change', 'RSI', 'MA25', 'MA50']
+SEQUENCE_COLUMNS = ['Close', 'Change', 'MA25', 'MA50', 'Direction']
 OUTPUT_COLUMNS = ['Change']
 
 SEQUENCE_LENGTH = 1
@@ -125,13 +125,6 @@ def split_train_and_test_data(x, y, x_dates, y_dates):
     }
 
 
-def prepare_tensors(x, y):
-    x = x.reshape(x.shape[0], x.shape[1], 1)
-    x = tf.convert_to_tensor(x, dtype=tf.float32)
-    y = tf.convert_to_tensor(y, dtype=tf.float32)
-    return x, y
-
-
 def get_cnn_data(ticker): 
     data = prepare_data(ticker)
     data = add_indicators(data)
@@ -140,8 +133,4 @@ def get_cnn_data(ticker):
     indicators, indicators_dates, target, target_dates  = prepare_sequences(data)
     train, test, predict = split_train_and_test_data(indicators, target, indicators_dates, target_dates)
 
-    # x_train, y_train = prepare_tensors(train['x'], train['y'])
-    # x_test, y_test = prepare_tensors(test['x'], test['y'])
-    # x_predict, y_predict = prepare_tensors(predict['x'], predict['y'])
-    
     return train, test, predict
