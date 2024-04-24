@@ -20,7 +20,7 @@ END_DATE = "2024-02-01"
 # OUTPUT_COLUMNS = ['Close', 'Change', 'Direction']
 # 'Stochastic_K', 'Stochastic_D',
 # 'lag_1', 'lag_2', 'lag_3', 'lag_4',
-SEQUENCE_COLUMNS = ['Open', 'Close', 'Change', 'RSI', 'MA25', 'MA50']
+SEQUENCE_COLUMNS = ['Open', 'Close', 'Change', 'RSI', 'MA25', 'MA50', 'Target']
 OUTPUT_COLUMNS = ['Change']
 
 SEQUENCE_LENGTH = 1
@@ -40,6 +40,9 @@ def prepare_data(ticker: str):
     
     stock_data = stock_data.drop(columns=["Date"])
     target = stock_data['Direction'].to_numpy()
+
+    stock_data['Target'] = stock_data['Price_Change'].shift(-5) - stock_data['Price_Change']  # Steps 2 and 3
+    stock_data['Target'] = np.where(stock_data['Target'] >= 0, 1, 0)
     
     # stock_data.set_index('Date', inplace=True)
     # stock_data.reset_index()
