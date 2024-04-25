@@ -131,7 +131,11 @@ def plot_direction_comparison(original_changes, predicted_changes):
     correct = np.sum(original_changes == binary_predictions)
     incorrect = np.sum(original_changes != binary_predictions)
 
-    
+        # Calculate percentage of correct and incorrect predictions
+    total_predictions = len(original_changes)
+    correct_percentage = (correct / total_predictions) * 100
+    incorrect_percentage = (incorrect / total_predictions) * 100
+
     mask_excluded = (predicted_changes < 0.45) | (predicted_changes > 0.55)
     binary_predictions_excluded = np.where(mask_excluded, np.where(predicted_changes >= 0.5, 1, 0), np.nan).flatten()
     correct_excluded = np.sum((original_changes == binary_predictions_excluded) & (~np.isnan(binary_predictions_excluded)))
@@ -144,6 +148,10 @@ def plot_direction_comparison(original_changes, predicted_changes):
     plt.bar(labels, counts, color=['green', 'red'])
     plt.xlabel('Prediction Direction')
     plt.ylabel('Count')
+        # Add percentage labels to the bars
+    for i, count in enumerate(counts):
+        plt.text(i, count, f'{count} ({correct_percentage if i == 0 else incorrect_percentage:.2f}%)', ha='center', va='bottom')
+
     plt.show()
     
     labels = ['Correct Predictions', 'Incorrect Predictions']

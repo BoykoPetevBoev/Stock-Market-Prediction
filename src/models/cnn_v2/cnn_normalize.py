@@ -20,7 +20,7 @@ END_DATE = "2024-02-01"
 # OUTPUT_COLUMNS = ['Close', 'Change', 'Direction']
 # 'Stochastic_K', 'Stochastic_D',
 # 'lag_1', 'lag_2', 'lag_3', 'lag_4',
-SEQUENCE_COLUMNS = ['Close', 'Change', 'MA25', 'MA50', 'Direction']
+SEQUENCE_COLUMNS = ['MA5', 'MA10', 'MA20', 'Direction', 'Target', 'Low_Shadow', 'High_Shadow']
 OUTPUT_COLUMNS = ['Change']
 
 SEQUENCE_LENGTH = 1
@@ -34,6 +34,12 @@ def prepare_data(ticker: str):
     )
     stock_data = stock_data[COLUMNS]
 
+    stock_data['Target'] = stock_data['Change'].shift(-5) - stock_data['Change']  # Steps 2 and 3
+    stock_data['Target'] = np.where(stock_data['Target'] >= 0, 1, 0)
+
+    stock_data['Low_Shadow'] = stock_data['Close'] - stock_data['Low']
+    stock_data['High_Shadow'] = stock_data['High'] - stock_data['Close']
+
     stock_data['Date'] = pd.to_datetime(stock_data['Date'])
     stock_data.set_index('Date', inplace=True)
     
@@ -42,11 +48,14 @@ def prepare_data(ticker: str):
 
 def add_indicators(data: pd.DataFrame): 
 
-    ma25 = ta.sma(data['Close'], length=25)
-    data['MA25'] = data['Close'] - ma25
+    ma5 = ta.sma(data['Close'], length=5)
+    data['MA5'] = data['Close'] - ma5
+
+    ma10 = ta.sma(data['Close'], length=10)
+    data['MA10'] = data['Close'] - ma10
     
-    ma50 = ta.sma(data['Close'], length=50)
-    data['MA50'] = data['Close'] - ma50
+    ma20 = ta.sma(data['Close'], length=20)
+    data['MA20'] = data['Close'] - ma20
     # extended_data['MA50'] = ta.sma(data['Close'], length=50)
     # extended_data['MA100'] = ta.sma(data['Close'], length=100)
 
@@ -87,7 +96,6 @@ def prepare_sequences(data: pd.DataFrame):
     dates = data.index.to_numpy()
     target = data['Direction'].to_numpy()
     indicators = data[SEQUENCE_COLUMNS].to_numpy()
-
 
     indicators = indicators[:-1]
     indicators_dates = dates[:-1]

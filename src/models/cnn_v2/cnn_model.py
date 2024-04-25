@@ -7,7 +7,7 @@ from tensorflow.keras.callbacks import TensorBoard
 
 CNN_V2_MODEL_DIRECTORY = './models/cnn_v2/cnn_model_v2.keras'        
 CNN_V2_LOG_DIRECTORY = 'logs/cnn_v2'
-INPUT_SHAPE = (5, 1)
+INPUT_SHAPE = (7, 1)
 
 
 def build_model():
