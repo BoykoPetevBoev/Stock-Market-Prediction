@@ -10,21 +10,15 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 
 
-
-COLUMNS = ['Date', 'Open', 'High', 'Low', 'Close', 'Change', 'Volume', 'Direction']
 START_DATE = "1900-01-01"
 END_DATE = "2024-02-01"
 
-
-# SEQUENCE_COLUMNS = ['Close', 'Change', 'Direction']
-# OUTPUT_COLUMNS = ['Close', 'Change', 'Direction']
-# 'Stochastic_K', 'Stochastic_D',
-# 'lag_1', 'lag_2', 'lag_3', 'lag_4',
-SEQUENCE_COLUMNS = ['MA5', 'MA10', 'MA20', 'Direction', 'Target', 'Low_Shadow', 'High_Shadow']
+SEQUENCE_COLUMNS = ['MA10', 'MA20', 'MA50', 'MA100', 'Direction']
 OUTPUT_COLUMNS = ['Change']
 
 SEQUENCE_LENGTH = 1
 OUTPUT_LENGTH = 1
+
 
 def prepare_data(ticker: str):
     stock_data = get_data(
@@ -32,57 +26,20 @@ def prepare_data(ticker: str):
         start_date = START_DATE, 
         end_date = END_DATE
     )
-    stock_data = stock_data[COLUMNS]
+    # stock_data['Target'] = stock_data['Change'].shift(-5) - stock_data['Change']  # Steps 2 and 3
+    # stock_data['Target'] = np.where(stock_data['Target'] >= 0, 1, 0)
 
-    stock_data['Target'] = stock_data['Change'].shift(-5) - stock_data['Change']  # Steps 2 and 3
-    stock_data['Target'] = np.where(stock_data['Target'] >= 0, 1, 0)
+    # stock_data['Low_Shadow'] = stock_data['Close'] - stock_data['Low']
+    # stock_data['High_Shadow'] = stock_data['High'] - stock_data['Close']
 
-    stock_data['Low_Shadow'] = stock_data['Close'] - stock_data['Low']
-    stock_data['High_Shadow'] = stock_data['High'] - stock_data['Close']
-
-    stock_data['Date'] = pd.to_datetime(stock_data['Date'])
-    stock_data.set_index('Date', inplace=True)
-    
     return stock_data
 
 
-def add_indicators(data: pd.DataFrame): 
-
-    ma5 = ta.sma(data['Close'], length=5)
-    data['MA5'] = data['Close'] - ma5
-
-    ma10 = ta.sma(data['Close'], length=10)
-    data['MA10'] = data['Close'] - ma10
-    
-    ma20 = ta.sma(data['Close'], length=20)
-    data['MA20'] = data['Close'] - ma20
-    # extended_data['MA50'] = ta.sma(data['Close'], length=50)
-    # extended_data['MA100'] = ta.sma(data['Close'], length=100)
-
-    data['RSI'] = ta.rsi(data['Close'])
-    
-    # stoch_results  = ta.stoch(high=data['High'], low=data['Low'], close=data['Close'])
-    # extended_data['Stochastic_K'] = stoch_results.iloc[:, 0]
-    # extended_data['Stochastic_D'] = stoch_results.iloc[:, 1]
-
-    data.dropna(inplace=True)
-    data.reset_index()
-    return data
-
-
-def add_lags(data: pd.DataFrame):
-    for lag in range(1, 5):
-        data[f"lag_{lag}"] = data.Change.shift(lag)
-
-    data = data.dropna()
-    data = data.reset_index()
-    return data
-
-def split_data(data: pd.DataFrame):
-    target = data.Change
-    indicators = data.drop(columns=["Change"])
-    indicators_train, indicators_test, target_train, target_test =  train_test_split(indicators, target, test_size=0.2)
-    return indicators_train, indicators_test, target_train, target_test
+# def split_data(data: pd.DataFrame):
+#     target = data.Change
+#     indicators = data.drop(columns=["Change"])
+#     indicators_train, indicators_test, target_train, target_test =  train_test_split(indicators, target, test_size=0.2)
+#     return indicators_train, indicators_test, target_train, target_test
 
 
 def normalize_data(data: pd.DataFrame): 
@@ -135,7 +92,6 @@ def split_train_and_test_data(x, y, x_dates, y_dates):
 
 def get_cnn_data(ticker): 
     data = prepare_data(ticker)
-    data = add_indicators(data)
     # data = add_lags(data)
     data =  normalize_data(data)
     indicators, indicators_dates, target, target_dates  = prepare_sequences(data)
