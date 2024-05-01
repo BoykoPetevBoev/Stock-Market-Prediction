@@ -141,11 +141,13 @@ def plot_direction_comparison(original_changes, predicted_changes):
     correct_excluded = np.sum((original_changes == binary_predictions_excluded) & (~np.isnan(binary_predictions_excluded)))
     incorrect_excluded = np.sum((original_changes != binary_predictions_excluded) & (~np.isnan(binary_predictions_excluded)))
 
-    labels = ['Correct Predictions', 'Incorrect Predictions']
-    counts = [correct, incorrect]
+    # labels = ['Correct Predictions', 'Incorrect Predictions']
+    counts = [correct, incorrect, correct_excluded, incorrect_excluded]
+    labels = ['Correct Predictions', 'Incorrect Predictions', 'Correct Predictions E', 'Incorrect Predictions E']
+    # counts = [, ]
 
     plt = config_chart('Agreement Between Original and Predicted Directions')
-    plt.bar(labels, counts, color=['green', 'red'])
+    plt.bar(labels, counts, color=['green', 'red', 'green', 'red'])
     plt.xlabel('Prediction Direction')
     plt.ylabel('Count')
         # Add percentage labels to the bars
@@ -154,11 +156,9 @@ def plot_direction_comparison(original_changes, predicted_changes):
 
     plt.show()
     
-    labels = ['Correct Predictions', 'Incorrect Predictions']
-    counts = [correct_excluded, incorrect_excluded]
 
-    plt = config_chart('Agreement Between Original and Predicted Directions')
-    plt.bar(labels, counts, color=['green', 'red'])
-    plt.xlabel('Prediction Direction')
-    plt.ylabel('Count')
-    plt.show()
+    # plt = config_chart('Agreement Between Original and Predicted Directions')
+    # plt.bar(labels, counts, color=['green', 'red'])
+    # plt.xlabel('Prediction Direction')
+    # plt.ylabel('Count')
+    # plt.show()
