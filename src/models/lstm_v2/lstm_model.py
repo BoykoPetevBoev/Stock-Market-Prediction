@@ -8,7 +8,7 @@ from tensorflow.keras.utils import plot_model
 
 LSTM_V2_MODEL_DIRECTORY = './models/lstm_v2/lstm_model_v2.keras'        
 LSTM_V2_LOG_DIRECTORY = 'logs/lstm_v2'      
-INPUT_SHAPE = (1, 6)
+INPUT_SHAPE = (10, 7)
 OUTPUT_SHAPE = (1)
 
     

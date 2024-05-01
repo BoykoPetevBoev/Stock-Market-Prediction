@@ -1,4 +1,6 @@
 import tensorflow as tf
+import pandas as pd
+
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import Conv1D, Dense, MaxPooling1D, Flatten, Input
 from tensorflow.keras.optimizers import Adam
@@ -7,14 +9,19 @@ from tensorflow.keras.callbacks import TensorBoard
 
 CNN_V2_MODEL_DIRECTORY = './models/cnn_v2/cnn_model_v2.keras'        
 CNN_V2_LOG_DIRECTORY = 'logs/cnn_v2'
-INPUT_SHAPE = (7, 1)
+INPUT_SHAPE = (5, 1)
 
 
 def build_model():
     model = Sequential([
         Input(INPUT_SHAPE),
         Conv1D(
-            filters=16, 
+            filters=64, 
+            kernel_size=(1,), 
+            activation='relu', 
+        ),
+        Conv1D(
+            filters=64, 
             kernel_size=(1,), 
             activation='relu', 
         ),
@@ -22,7 +29,7 @@ def build_model():
         #     pool_size=(2,)
         # ),
         Conv1D(
-            filters=16, 
+            filters=32, 
             kernel_size=(1,), 
             activation='relu'
         ),
@@ -30,6 +37,10 @@ def build_model():
         #     pool_size=(2,)
         # ),
         Flatten(),
+        Dense(
+            units=32, 
+            activation='relu'
+        ),
         Dense(
             units=1, 
             activation='linear'
