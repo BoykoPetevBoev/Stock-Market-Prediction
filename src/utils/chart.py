@@ -127,7 +127,9 @@ def plot_direction_comparison(original_changes, predicted_changes):
     # correct = np.sum(agreement)
     # incorrect = len(agreement) - correct
 
-    binary_predictions = np.where(predicted_changes >= 0.5, 1, 0).flatten()
+    # binary_predictions = np.where(predicted_changes >= 0.5, 1, 0).flatten()
+    # binary_predictions = np.argmax(predicted_changes, axis=1)
+    binary_predictions = predicted_changes
     correct = np.sum(original_changes == binary_predictions)
     incorrect = np.sum(original_changes != binary_predictions)
 
