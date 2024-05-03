@@ -2,11 +2,11 @@ import numpy as np
 import pandas as pd
 import pandas_ta as ta
 import tensorflow as tf
+import matplotlib.pyplot as plt
 
 from data.data import get_data
-from classes.model_data_class import ModelData
-
 from sklearn.preprocessing import MinMaxScaler
+from classes.model_data_class import ModelData
 from sklearn.model_selection import train_test_split
 
 
@@ -20,66 +20,43 @@ SEQUENCE_LENGTH = 1
 OUTPUT_LENGTH = 1
 
 
-def is_shooting_star_with_trend_reversal(data, index):
-    # Check for shooting star pattern for the current candle
-    
-    if index <= 6 or index > len(data) - 6:
-        return False
-    
-    current_candle = data.iloc[index]
-    body_length = abs(current_candle['Open'] - current_candle['Close'])
-    upper_shadow_length = current_candle['High'] - max(current_candle['Open'], current_candle['Close'])
-    lower_shadow_length = min(current_candle['Open'], current_candle['Close']) - current_candle['Low']
-    shooting_star_condition = (upper_shadow_length >= 2 * body_length) and (lower_shadow_length <= 0.5 * body_length)
-    
-    if not shooting_star_condition:
-        return False
-    
-    # Check for trend reversal pattern in the previous 5 candles
-    prev_candles = data.iloc[max(index - 5, 0):index]
-    if len(prev_candles) < 5:
-        return False
-    prev_candles_trend = prev_candles['Close'].diff().mean() > 0  # Check if the trend is positive
-    if prev_candles_trend:
-        return False  # If the trend is positive, it's not a reversal
-    
-    # Check for trend reversal pattern in the next 5 candles
-    next_candles = data.iloc[index + 1:min(index + 6, len(data))]
-    if len(next_candles) < 5:
-        return False
-    next_candles_trend = next_candles['Close'].diff().mean() < 0  # Check if the trend is negative
-    if next_candles_trend:
-        return False  # If the trend is negative, it's not a reversal
-    
-    # If both conditions are met, it's a shooting star with a trend reversal
-    return True
-
-def is_shooting_star(row):
-    body_length = abs(row['Open'] - row['Close'])
-    upper_shadow_length = row['High'] - max(row['Open'], row['Close'])
-    lower_shadow_length = min(row['Open'], row['Close']) - row['Low']
-    return (upper_shadow_length >= 2 * body_length) and (lower_shadow_length <= 0.5 * body_length)
-
-# Apply the function to each row in the DataFrame to identify shooting star candles
-
-
 def prepare_data(ticker: str):
     data = get_data(
         ticker = ticker, 
         start_date = START_DATE, 
         end_date = END_DATE
     )
-    # stock_data['Target'] = stock_data['Change'].shift(-5) - stock_data['Change']  # Steps 2 and 3
-    # stock_data['Target'] = np.where(stock_data['Target'] >= 0, 1, 0)
-
-    # stock_data['Low_Shadow'] = stock_data['Close'] - stock_data['Low']
-    # stock_data['High_Shadow'] = stock_data['High'] - stock_data['Close']
-
-    data['Is_Shooting_Star'] = data.apply(is_shooting_star, axis=1)
-    
-    # data['Shooting_Star_With_Trend_Reversal'] = [is_shooting_star_with_trend_reversal(data, index) for index in data.index]
-    
     return data
+
+
+def generateImages(data):
+    image_data = data[0:1000].copy()
+    image_data['Date'] = image_data.index.strftime('%Y-%m-%d')
+    image_data = image_data.reset_index(drop=True)
+
+    num_candles = 10
+
+    for index in range(image_data.shape[0] - num_candles):
+
+        fig, ax = plt.subplots(figsize=(2, 2))
+        end_index = index + num_candles
+        formation_data = image_data[index:end_index]
+        ax.set_axis_off()
+
+        # mpf.plot(formation_data, type='candle', volume=False, ax=ax)
+        # plt.savefig(f'models/cnn_v3/data/{shooting_star_formations.Date[index]}.png', dpi=75)  # Adjust dpi for desired resolution
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # def split_data(data: pd.DataFrame):
