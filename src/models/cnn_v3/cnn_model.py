@@ -2,55 +2,31 @@ import tensorflow as tf
 import pandas as pd
 
 from tensorflow.keras.models import Sequential, load_model
-from tensorflow.keras.layers import Conv1D, Dense, MaxPooling1D, Flatten, Input
+from tensorflow.keras.layers import Conv1D, Conv2D, Dense, MaxPooling1D, Flatten, Input
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import TensorBoard
 
 
-CNN_V2_MODEL_DIRECTORY = './models/cnn_v3/cnn_model_v2.keras'        
+CNN_V2_MODEL_DIRECTORY = './models/cnn_v3/cnn_model_v3.keras'        
 CNN_V2_LOG_DIRECTORY = 'logs/cnn_v3'
-INPUT_SHAPE = (5, 1)
+INPUT_SHAPE = (256, 256, 4)
 
 
 def build_model():
     model = Sequential([
-        Input(INPUT_SHAPE),
-        Conv1D(
-            filters=64, 
-            kernel_size=(1,), 
-            activation='relu', 
-        ),
-        Conv1D(
-            filters=64, 
-            kernel_size=(1,), 
-            activation='relu', 
-        ),
-        # MaxPooling1D(
-        #     pool_size=(2,)
-        # ),
-        Conv1D(
-            filters=32, 
-            kernel_size=(1,), 
-            activation='relu'
-        ),
-        # MaxPooling1D(
-        #     pool_size=(2,)
-        # ),
+        Input((256, 256, 4)),
+        Conv2D(filters=32, kernel_size=(3, 4), activation='relu'),
+        Conv2D(filters=16, kernel_size=(3, 4), activation='relu'),
+        Conv2D(filters=8, kernel_size=(3, 4), activation='relu'),
         Flatten(),
-        Dense(
-            units=32, 
-            activation='relu'
-        ),
-        Dense(
-            units=1, 
-            activation='linear'
-        )
+        Dense(units=32, activation='relu'),
+        Dense(units=5, activation='softmax')
     ])
     model.compile(
-        optimizer=Adam(0.001), 
-        loss='mse', 
+        # optimizer=Adam(0.001), 
+        loss='sparse_categorical_crossentropy', 
         metrics=[
-            'mean_absolute_error',
+            # 'mean_absolute_error',
             'accuracy'
         ]
     )
@@ -58,29 +34,22 @@ def build_model():
 
 
 def train_model(
-    x_train: tf.Tensor, 
-    x_test: tf.Tensor, 
-    y_train: tf.Tensor, 
-    y_test: tf.Tensor
+    train_dataset: tf.Tensor, 
+    test_dataset: tf.Tensor
 ):
     model = build_model()
     tensorboard_callback = TensorBoard(log_dir=CNN_V2_LOG_DIRECTORY)
     
     fit_result = model.fit(
-        x=x_train, 
-        y=y_train, 
-        epochs=100, 
-        # verbose=2,
-        # batch_size=32,
+        train_dataset,
+        epochs=5, 
+        steps_per_epoch=10,
         callbacks=[tensorboard_callback]
     )
-    evaluate_result = model.evaluate(
-        x=x_test, 
-        y=y_test, 
-        # batch_size=32, 
-        # verbose=2
-    )
-    return model, fit_result, evaluate_result
+    # evaluate_result = model.evaluate(
+    #     test_dataset, 
+    # )
+    return model, fit_result, fit_result
 
 
 def save_cnn_model(model):
