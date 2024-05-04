@@ -3,6 +3,10 @@ import pandas as pd
 import pandas_ta as ta
 import tensorflow as tf
 import matplotlib.pyplot as plt
+import os
+
+from tensorflow.data import Dataset
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 from data.data import get_data
 from sklearn.preprocessing import MinMaxScaler
@@ -12,6 +16,9 @@ from sklearn.model_selection import train_test_split
 
 START_DATE = "1900-01-01"
 END_DATE = "2024-02-01"
+IMAGE_DIRECTORY = "models/cnn_v3/data/"
+
+
 
 SEQUENCE_COLUMNS = ['Open', 'High', 'Low', 'Close', 'Direction']
 OUTPUT_COLUMNS = ['Change']
@@ -26,13 +33,13 @@ def prepare_data(ticker: str):
         start_date = START_DATE, 
         end_date = END_DATE
     )
+    data['Date'] = data.index.strftime('%Y-%m-%d')
+    data = data.reset_index(drop=True)
     return data
 
 
 def generateImages(data):
     image_data = data[0:1000].copy()
-    image_data['Date'] = image_data.index.strftime('%Y-%m-%d')
-    image_data = image_data.reset_index(drop=True)
 
     num_candles = 10
 
@@ -47,30 +54,64 @@ def generateImages(data):
         # plt.savefig(f'models/cnn_v3/data/{shooting_star_formations.Date[index]}.png', dpi=75)  # Adjust dpi for desired resolution
 
 
+def getImages():
+    generator = ImageDataGenerator()
+    images = generator.flow_from_directory(IMAGE_DIRECTORY)
+    return images
 
 
+def getClassesAndFiles():
+    classes = os.listdir(IMAGE_DIRECTORY)
+    folders = [IMAGE_DIRECTORY + class_name for class_name in classes]
+
+    all_files = []
+    all_classes = []
+
+    for folder_name, class_name in zip(folders, classes):
+        files = os.listdir(folder_name)
+        all_files.extend([os.path.join(folder_name, file) for file in files])
+        all_classes.extend([class_name] * len(files))
+
+    class_mapping = {class_name: class_id for (class_id, class_name) in list(enumerate(classes))}
+
+    all_class_ids = [class_mapping[c] for c in all_classes]
+    return all_files, all_class_ids
 
 
+def read_images(file_name, class_name):
+    image_file = tf.io.read_file(file_name)
+    image = tf.image.decode_png(image_file)
+    image_scaled = tf.cast(image, float) / 255.0
+    image_resized = tf.image.resize(image_scaled, (256, 256))
+    return (image_resized, class_name)
 
 
+def getImagesDataset():
+    all_files, all_class_ids = getClassesAndFiles()
+
+    dataset = Dataset \
+        .from_tensor_slices((all_files, all_class_ids)) \
+        .shuffle(len(all_files)) \
+        .map(read_images) \
+        .batch(4) \
+        .repeat()
+
+    return dataset
 
 
+def split_train_and_test_data(dataset):
+    length = tf.data.experimental.cardinality(dataset).numpy()
 
+    train_size = int(0.7 * length)
+    test_size = int(0.2 * length)
+    predict_size = length - train_size - test_size
 
+    train_dataset = dataset.take(train_size)
+    test_dataset = dataset.skip(train_size).take(test_size)
+    predict_dataset = dataset.skip(train_size + test_size)
 
+    return train_dataset, test_dataset, predict_dataset
 
-# def split_data(data: pd.DataFrame):
-#     target = data.Change
-#     indicators = data.drop(columns=["Change"])
-#     indicators_train, indicators_test, target_train, target_test =  train_test_split(indicators, target, test_size=0.2)
-#     return indicators_train, indicators_test, target_train, target_test
-
-
-def normalize_data(data: pd.DataFrame): 
-    # scaler = MinMaxScaler(feature_range=(0, 1))
-    # scaled_data = scaler.fit_transform(data)
-    # scaled_data = pd.DataFrame(scaled_data, columns=data.columns, index=data.index)
-    return data
 
 
 def prepare_sequences(data: pd.DataFrame):
@@ -87,38 +128,9 @@ def prepare_sequences(data: pd.DataFrame):
     return indicators, indicators_dates, target, target_dates
 
 
-def split_train_and_test_data(x, y, x_dates, y_dates):
-    train = int(len(y) * .8)
-    test = int(len(y) * .9)
-    predict = int(len(y))
-    
-    x_train, y_train = x[0:train], y[0:train]
-    x_test, y_test = x[train:test], y[train:test]
-    x_predict, y_predict = x[test:predict], y[test:predict]
-    
-    return {
-        'x': x[0:train],
-        'y': y[0:train],
-        'x_dates': x_dates[0:train],
-        'y_dates': y_dates[0:train]
-    }, {
-        'x': x_test,
-        'y': y_test,
-        'x_dates': x_dates[train:test],
-        'y_dates': y_dates[train:test]
-    }, {
-        'x': x_predict,
-        'y': y_predict,
-        'x_dates': x_dates[test:predict],
-        'y_dates': y_dates[test:predict]
-    }
-
-
 def get_cnn_data(ticker): 
-    data = prepare_data(ticker)
-    # data = add_lags(data)
-    data =  normalize_data(data)
-    indicators, indicators_dates, target, target_dates  = prepare_sequences(data)
-    train, test, predict = split_train_and_test_data(indicators, target, indicators_dates, target_dates)
+    all_files, all_class_ids = getClassesAndFiles()
+    dataset = getImagesDataset()
+    train_dataset, test_dataset, predict_dataset = split_train_and_test_data(dataset)
 
-    return train, test, predict
+    return dataset, dataset, dataset
