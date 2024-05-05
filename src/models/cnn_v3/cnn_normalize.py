@@ -63,7 +63,10 @@ def getImages():
 def getClassesAndFiles():
     classes = os.listdir(IMAGE_DIRECTORY)
     folders = [IMAGE_DIRECTORY + class_name for class_name in classes]
+    return classes, folders
 
+
+def mapAllClassesAndImages(classes, folders):
     all_files = []
     all_classes = []
 
@@ -78,6 +81,7 @@ def getClassesAndFiles():
     return all_files, all_class_ids
 
 
+
 def read_images(file_name, class_name):
     image_file = tf.io.read_file(file_name)
     image = tf.image.decode_png(image_file)
@@ -86,15 +90,13 @@ def read_images(file_name, class_name):
     return (image_resized, class_name)
 
 
-def getImagesDataset():
-    all_files, all_class_ids = getClassesAndFiles()
-
+def getImagesDataset(all_files, all_class_ids):
     dataset = Dataset \
         .from_tensor_slices((all_files, all_class_ids)) \
         .shuffle(len(all_files)) \
         .map(read_images) \
-        .batch(4) \
-        .repeat()
+        .batch(1) \
+        # .repeat()
 
     return dataset
 
@@ -129,8 +131,9 @@ def prepare_sequences(data: pd.DataFrame):
 
 
 def get_cnn_data(ticker): 
-    all_files, all_class_ids = getClassesAndFiles()
-    dataset = getImagesDataset()
+    classes, folders = getClassesAndFiles()
+    all_files, all_class_ids = mapAllClassesAndImages(classes, folders)
+    dataset = getImagesDataset(all_files, all_class_ids)
     train_dataset, test_dataset, predict_dataset = split_train_and_test_data(dataset)
 
-    return dataset, dataset, dataset
+    return train_dataset, test_dataset, predict_dataset

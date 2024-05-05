@@ -43,7 +43,7 @@ def train_model(
     fit_result = model.fit(
         train_dataset,
         epochs=5, 
-        steps_per_epoch=10,
+        steps_per_epoch=50,
         callbacks=[tensorboard_callback]
     )
     # evaluate_result = model.evaluate(
