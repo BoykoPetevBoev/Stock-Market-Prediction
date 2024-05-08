@@ -1,10 +1,10 @@
 import tensorflow as tf
 import pandas as pd
 
-from tensorflow.keras.models import Sequential, load_model
-from tensorflow.keras.layers import Conv1D, Conv2D, Dense, MaxPooling1D, Flatten, Input
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.models import Sequential, load_model
+from tensorflow.keras.layers import Conv2D, Dense, Flatten, Input
 
 
 CNN_V2_MODEL_DIRECTORY = './models/cnn_v3/cnn_model_v3.keras'        
@@ -14,7 +14,7 @@ INPUT_SHAPE = (256, 256, 4)
 
 def build_model():
     model = Sequential([
-        Input((256, 256, 4)),
+        Input(INPUT_SHAPE),
         Conv2D(filters=32, kernel_size=(3, 4), activation='relu'),
         Conv2D(filters=16, kernel_size=(3, 4), activation='relu'),
         Conv2D(filters=8, kernel_size=(3, 4), activation='relu'),
@@ -23,33 +23,34 @@ def build_model():
         Dense(units=5, activation='softmax')
     ])
     model.compile(
-        # optimizer=Adam(0.001), 
+        optimizer=Adam(0.001),
         loss='sparse_categorical_crossentropy', 
-        metrics=[
-            # 'mean_absolute_error',
-            'accuracy'
-        ]
+        metrics=['accuracy']
     )
     return model
 
 
 def train_model(
-    train_dataset: tf.Tensor, 
-    test_dataset: tf.Tensor
+    x_train,
+    x_test,
+    y_train,
+    y_test,
 ):
     model = build_model()
     tensorboard_callback = TensorBoard(log_dir=CNN_V2_LOG_DIRECTORY)
     
     fit_result = model.fit(
-        train_dataset,
-        epochs=5, 
-        steps_per_epoch=50,
+        x=x_train, 
+        y=y_train,
+        epochs=10, 
+        steps_per_epoch=100,
         callbacks=[tensorboard_callback]
     )
-    # evaluate_result = model.evaluate(
-    #     test_dataset, 
-    # )
-    return model, fit_result, fit_result
+    evaluate_result = model.evaluate(
+        x=x_test, 
+        y=y_test,
+    )
+    return model, fit_result, evaluate_result
 
 
 def save_cnn_model(model):
