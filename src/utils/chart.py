@@ -13,7 +13,7 @@ def plot_chart_line(data, label, title):
 
 
 def config_chart(title):
-    plt.figure(figsize=(12, 6))
+    plt.figure(figsize=(12, 4))
     plt.title(title)
     plt.grid(True)
     return plt
