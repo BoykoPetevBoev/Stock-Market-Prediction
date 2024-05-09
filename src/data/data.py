@@ -46,7 +46,7 @@ def get_data(
         data = yf.download(ticker, start=start_date, end=end_date, interval=interval)
 
     data['Date'] = pd.to_datetime(data['Date'])
-    data.set_index('Date', inplace=True)
+    data.set_index('Date', inplace=False)
 
     data["Change"] = data["Close"] - data["Open"]
     data["Direction"] = data["Change"].apply(lambda x: 1 if x > 0 else 0)
