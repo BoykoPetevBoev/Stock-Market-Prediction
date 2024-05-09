@@ -28,7 +28,8 @@ def prepare_data(ticker: str):
         start_date = START_DATE, 
         end_date = END_DATE
     )
-    data['Date'] = data.index.strftime('%Y-%m-%d')
+    data['Date']= pd.to_datetime(data['Date'])
+    data['Date'] = data['Date'].dt.strftime('%Y-%m-%d')
     return data
 
 
