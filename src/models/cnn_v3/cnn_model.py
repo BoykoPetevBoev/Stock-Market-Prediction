@@ -24,7 +24,7 @@ def build_model():
     ])
     model.compile(
         optimizer=Adam(0.001),
-        loss='sparse_categorical_crossentropy', 
+        loss='sparse_categorical_crossentropy',
         metrics=['accuracy']
     )
     return model
