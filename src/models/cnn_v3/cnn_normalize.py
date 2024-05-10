@@ -43,8 +43,8 @@ def generate_images(data: pd.DataFrame):
         end_index = index + num_candles
         formation_data = image_data[index:end_index]
         
-        # mpf.plot(formation_data, type='candle', volume=False, ax=ax)
-        # plt.savefig(f'{IMAGE_DIRECTORY}{image_data.Date[index]}.png', dpi=75)
+        mpf.plot(formation_data, type='candle', volume=False, ax=ax)
+        plt.savefig(f'{IMAGE_DIRECTORY}{image_data.Date[index]}.png', dpi=75)
 
 
 def get_images():
@@ -115,11 +115,12 @@ def shuffle_images_and_labels(
     return np.array(shuffled_images), np.array(shuffled_labels)
 
 
+
 def split_train_and_test_data(
         x: np.ndarray,  
         y: np.ndarray[int]
     ):
-    train = int(len(y) * .8)
+    train = int(len(y) * .7)
     test = int(len(y) * .9)
     predict = int(len(y))
     
