@@ -112,7 +112,7 @@ def prepare_sequences(data: pd.DataFrame, target):
 
 
 def split_train_and_test_data(x, y, dates):
-    train = int(len(y) * .8)
+    train = int(len(y) * .7)
     test = int(len(y) * .9)
     predict = int(len(y))
     
