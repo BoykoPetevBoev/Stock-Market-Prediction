@@ -21,7 +21,6 @@ def add_indicators(data: pd.DataFrame):
     data['Stochastic_D'] = stoch_results.iloc[:, 1]
 
     data.dropna(inplace=True)
-    data.reset_index()
     return data
 
 
@@ -52,5 +51,6 @@ def get_data(
     data["Direction"] = data["Change"].apply(lambda x: 1 if x > 0 else 0)
 
     data = add_indicators(data)
+    data.reset_index(inplace=True)
 
     return data

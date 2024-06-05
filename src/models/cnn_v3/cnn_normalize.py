@@ -28,13 +28,15 @@ def prepare_data(ticker: str):
         start_date = START_DATE, 
         end_date = END_DATE
     )
-    data['Date']= pd.to_datetime(data['Date'])
+
+    data = data.set_index('Date', drop=False)
     data['Date'] = data['Date'].dt.strftime('%Y-%m-%d')
+    
     return data
 
 
 def generate_images(data: pd.DataFrame):
-    image_data = data[1000:2000].copy()
+    image_data = data[2000:3000].copy()
     num_candles = 10
 
     for index in range(image_data.shape[0] - num_candles):

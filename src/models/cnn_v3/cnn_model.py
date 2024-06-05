@@ -27,8 +27,8 @@ def build_model():
         loss='sparse_categorical_crossentropy',
         metrics=[
             'accuracy',
-            tf.keras.metrics.Precision(),
-            tf.keras.metrics.Recall()
+            # tf.keras.metrics.Precision(),
+            # tf.keras.metrics.Recall()
         ]
     )
     return model
@@ -46,7 +46,7 @@ def train_model(
     fit_result = model.fit(
         x=x_train, 
         y=y_train,
-        epochs=10, 
+        epochs=8, 
         steps_per_epoch=100,
         callbacks=[tensorboard_callback]
     )
