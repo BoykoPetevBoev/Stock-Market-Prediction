@@ -25,7 +25,11 @@ def build_model():
     model.compile(
         optimizer=Adam(0.001),
         loss='sparse_categorical_crossentropy',
-        metrics=['accuracy']
+        metrics=[
+            'accuracy',
+            tf.keras.metrics.Precision(),
+            tf.keras.metrics.Recall()
+        ]
     )
     return model
 
@@ -60,4 +64,4 @@ def save_cnn_model(model):
 def load_cnn_model():
     model = load_model(CNN_V2_MODEL_DIRECTORY)
     return model
-    
+
